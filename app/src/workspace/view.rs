@@ -5301,6 +5301,18 @@ impl Workspace {
         remote_path: crate::code::buffer_location::RemotePath,
         ctx: &mut ViewContext<Self>,
     ) {
+        self.open_remote_file_with_target(remote_path, None, ctx);
+    }
+
+    /// 与 [`Self::open_remote_file`] 相同,但可携带 `line_col`(行:列跳转)。
+    /// 终端里 Ctrl/Cmd+点击远端文件路径时使用,把行号一路透传给 `open_code`。
+    #[cfg(feature = "local_tty")]
+    pub fn open_remote_file_with_target(
+        &mut self,
+        remote_path: crate::code::buffer_location::RemotePath,
+        line_col: Option<LineAndColumnArg>,
+        ctx: &mut ViewContext<Self>,
+    ) {
         log::info!(
             "Opening remote file: host={} path={}",
             remote_path.host_id,
@@ -5311,7 +5323,7 @@ impl Workspace {
         self.open_code(
             CodeSource::RemoteFileTree { remote_path },
             layout,
-            None,  /* line_col */
+            line_col,
             false, /* preview */
             &[],   /* additional_paths */
             ctx,
@@ -12887,6 +12899,14 @@ impl Workspace {
                     },
                     ctx,
                 );
+            }
+            // OpenWarp:终端里 Ctrl/Cmd+点击远端 SSH 文件路径,走 buffer-sync 协议打开。
+            #[cfg(all(feature = "local_tty", feature = "local_fs"))]
+            pane_group::Event::OpenRemoteFileFromTerminal {
+                remote_path,
+                line_col,
+            } => {
+                self.open_remote_file_with_target(remote_path.clone(), *line_col, ctx);
             }
             #[cfg(feature = "local_fs")]
             pane_group::Event::FileRenamed { old_path, new_path } => {

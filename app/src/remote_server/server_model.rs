@@ -30,8 +30,9 @@ use super::proto::{
 // `local_fs` 下可用,因此整套服务端 buffer 处理都按 `local_fs` 门控。
 #[cfg(feature = "local_fs")]
 use super::proto::{
-    resolve_conflict_response, save_buffer_response, BufferEdit, BufferUpdatedPush, CloseBuffer,
-    OpenBuffer, OpenBufferResponse, ResolveConflict, ResolveConflictResponse,
+    list_directory_response, resolve_conflict_response, save_buffer_response, BufferEdit,
+    BufferUpdatedPush, CloseBuffer, DirEntry, ListDirectory, ListDirectoryResponse,
+    ListDirectorySuccess, OpenBuffer, OpenBufferResponse, ResolveConflict, ResolveConflictResponse,
     ResolveConflictSuccess, SaveBuffer, SaveBufferResponse, SaveBufferSuccess, TextEdit,
 };
 #[cfg(feature = "local_fs")]
@@ -627,13 +628,17 @@ impl ServerModel {
             Some(client_message::Message::ResolveConflict(msg)) => {
                 self.handle_resolve_conflict(msg, &request_id, conn_id, ctx)
             }
+            // OpenWarp:远端终端文件链接的目录列举(校验路径形态用)。
+            #[cfg(feature = "local_fs")]
+            Some(client_message::Message::ListDirectory(msg)) => self.handle_list_directory(msg),
             #[cfg(not(feature = "local_fs"))]
             Some(
                 client_message::Message::OpenBuffer(_)
                 | client_message::Message::BufferEdit(_)
                 | client_message::Message::CloseBuffer(_)
                 | client_message::Message::SaveBuffer(_)
-                | client_message::Message::ResolveConflict(_),
+                | client_message::Message::ResolveConflict(_)
+                | client_message::Message::ListDirectory(_),
             ) => HandlerOutcome::Sync(server_message::Message::Error(ErrorResponse {
                 code: ErrorCode::InvalidRequest.into(),
                 message: "Buffer syncing requires the local_fs feature".to_string(),
@@ -1463,6 +1468,43 @@ impl ServerModel {
                 },
             )),
         }
+    }
+
+    /// OpenWarp:处理 `ListDirectory` —— 同步列举一个目录下的直接子项。
+    ///
+    /// 给远端终端文件链接检测做精确校验用:客户端缓存某个 cwd 下的
+    /// 真实目录项,链接检测器据此从 `ls -l` 整行里切出正确的文件名。
+    /// `std::fs::read_dir` 在 daemon 端是廉价的同步调用,故直接返回
+    /// `HandlerOutcome::Sync`,不走异步 spawn。
+    #[cfg(feature = "local_fs")]
+    fn handle_list_directory(&self, msg: ListDirectory) -> HandlerOutcome {
+        log::info!("Handling ListDirectory path={}", msg.path);
+
+        let result = match std::fs::read_dir(&msg.path) {
+            Ok(read_dir) => {
+                let mut entries = Vec::new();
+                for entry in read_dir.flatten() {
+                    let name = entry.file_name().to_string_lossy().into_owned();
+                    // 优先用 `file_type()`(不跟随符号链接、无需额外 stat);
+                    // 失败时回退到 `metadata()`(会跟随符号链接)。
+                    let is_dir = match entry.file_type() {
+                        Ok(ft) => ft.is_dir(),
+                        Err(_) => entry.metadata().map(|m| m.is_dir()).unwrap_or(false),
+                    };
+                    entries.push(DirEntry { name, is_dir });
+                }
+                list_directory_response::Result::Success(ListDirectorySuccess { entries })
+            }
+            Err(err) => list_directory_response::Result::Error(FileOperationError {
+                message: format!("Failed to list directory {}: {err}", msg.path),
+            }),
+        };
+
+        HandlerOutcome::Sync(server_message::Message::ListDirectoryResponse(
+            ListDirectoryResponse {
+                result: Some(result),
+            },
+        ))
     }
 
     /// Handles `CloseBuffer` notification (fire-and-forget).

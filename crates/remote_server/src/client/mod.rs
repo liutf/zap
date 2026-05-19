@@ -11,11 +11,11 @@ use warpui::r#async::{executor, FutureExt as _};
 
 use crate::proto::{
     client_message, server_message, Abort, Authenticate, BufferEdit, ClientMessage, CloseBuffer,
-    DeleteFile, ErrorCode, Initialize, InitializeResponse, LoadRepoMetadataDirectoryResponse,
-    NavigatedToDirectoryResponse, OpenBuffer, OpenBufferResponse, ReadFileContextRequest,
-    ReadFileContextResponse, ResolveConflict, ResolveConflictResponse, RunCommandRequest,
-    RunCommandResponse, SaveBuffer, SaveBufferResponse, ServerMessage, SessionBootstrapped,
-    TextEdit, WriteFile,
+    DeleteFile, ErrorCode, Initialize, InitializeResponse, ListDirectory, ListDirectoryResponse,
+    LoadRepoMetadataDirectoryResponse, NavigatedToDirectoryResponse, OpenBuffer,
+    OpenBufferResponse, ReadFileContextRequest, ReadFileContextResponse, ResolveConflict,
+    ResolveConflictResponse, RunCommandRequest, RunCommandResponse, SaveBuffer, SaveBufferResponse,
+    ServerMessage, SessionBootstrapped, TextEdit, WriteFile,
 };
 
 use crate::protocol::{self, ProtocolError, RequestId};
@@ -367,6 +367,28 @@ impl RemoteServerClient {
             },
             other => {
                 log::error!("Unexpected response variant for DeleteFile: {other:?}");
+                Err(ClientError::UnexpectedResponse)
+            }
+        }
+    }
+
+    /// OpenWarp:列举远端主机上某个目录的直接子项。
+    ///
+    /// 终端文件链接检测用它精确校验远端路径形态(本地会话靠
+    /// `fs::metadata` 做这件事,远端文件不在本地磁盘上)。
+    pub async fn list_directory(&self, path: String) -> Result<ListDirectoryResponse, ClientError> {
+        let request_id = RequestId::new();
+        let msg = ClientMessage {
+            request_id: request_id.to_string(),
+            message: Some(client_message::Message::ListDirectory(ListDirectory {
+                path,
+            })),
+        };
+        let response = self.send_request(request_id, msg).await?;
+        match response.message {
+            Some(server_message::Message::ListDirectoryResponse(resp)) => Ok(resp),
+            other => {
+                log::error!("Unexpected response variant for ListDirectory: {other:?}");
                 Err(ClientError::UnexpectedResponse)
             }
         }

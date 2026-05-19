@@ -28,6 +28,7 @@ message ClientMessage {
     CloseBuffer close_buffer = 15;
     SaveBuffer save_buffer = 16;
     ResolveConflict resolve_conflict = 17;
+    ListDirectory list_directory = 18;
   }
 }
 // Top-level envelope for all server → client messages.
@@ -50,6 +51,7 @@ message ServerMessage {
     BufferUpdatedPush buffer_updated = 15;
     SaveBufferResponse save_buffer_response = 16;
     ResolveConflictResponse resolve_conflict_response = 17;
+    ListDirectoryResponse list_directory_response = 18;
   }
 }
 
@@ -405,3 +407,33 @@ message ResolveConflictResponse {
 }
 
 message ResolveConflictSuccess {}
+
+// ── ListDirectory ─────────────────────────────────────────────────
+// OpenWarp:终端文件链接的远端精确校验。客户端在远端 SSH 会话里
+// Ctrl/Cmd+点击文件路径时,需要知道某个 cwd 下的真实目录项,
+// 才能从 `ls -l` 这类整行输出里准确切出文件名(本地会话靠
+// `fs::metadata` 存在性校验做这件事,远端文件不在本地磁盘上)。
+
+// Client → server: list the immediate entries of a directory.
+message ListDirectory {
+  string path = 1;
+}
+
+// A single directory entry returned by ListDirectory.
+message DirEntry {
+  string name = 1;
+  bool is_dir = 2;
+}
+
+// Server → client: the entries contained directly in the requested directory.
+message ListDirectorySuccess {
+  repeated DirEntry entries = 1;
+}
+
+// Server → client: result of a ListDirectory request.
+message ListDirectoryResponse {
+  oneof result {
+    ListDirectorySuccess success = 1;
+    FileOperationError error = 2;
+  }
+}

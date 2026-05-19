@@ -542,7 +542,7 @@ impl CodeView {
                 editor.set_interaction_state(InteractionState::Selectable, ctx);
             });
         }
-        ctx.subscribe_to_view(&code_editor, |me, _, event, ctx| match event {
+        ctx.subscribe_to_view(&code_editor, |me, emitter, event, ctx| match event {
             LocalCodeEditorEvent::FileLoaded => {
                 me.pane_configuration.update(ctx, |pane_config, ctx| {
                     pane_config.refresh_pane_header_overflow_menu_items(ctx);
@@ -561,6 +561,18 @@ impl CodeView {
                 }
                 log::warn!("Failed to load file. {err:?}");
                 CodeView::display_load_failure(ctx.window_id(), ctx);
+                // 加载失败后,关闭这个出错的文件 tab —— 避免留下一个无法加载的空 pane/tab。
+                // 通过事件发出者(LocalCodeEditorView 句柄)定位是哪个 tab 失败,
+                // 复用用户手动关闭 tab 的路径 `remove_tab_data_index`:
+                // 若失败的是 tab 组里的多个之一,只移除该 tab;若是唯一的 tab,
+                // `update_tab_bar_state` 会在 tab 组清空后发出 `PaneEvent::Close` 关闭整个 pane。
+                if let Some(failed_index) = me
+                    .tab_group
+                    .iter()
+                    .position(|tab| tab.editor_view == emitter)
+                {
+                    me.remove_tab_data_index(failed_index, ctx);
+                }
             }
             LocalCodeEditorEvent::SelectionAddedAsContext {
                 relative_file_path,
