@@ -147,8 +147,7 @@ impl SkillManagerPanel {
                     .duplicates
                     .iter()
                     .filter(|duplicate| {
-                        provider_filter
-                            .is_none_or(|provider| duplicate.provider == provider)
+                        provider_filter.is_none_or(|provider| duplicate.provider == provider)
                             && (query.is_empty()
                                 || duplicate.name.to_lowercase().contains(query)
                                 || duplicate.description.to_lowercase().contains(query)

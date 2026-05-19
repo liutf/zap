@@ -4698,11 +4698,7 @@ fn onekey_empty_query_after_trim_returns_full_set() {
 
 #[test]
 fn onekey_query_filters_out_non_matches() {
-    let candidates = vec![
-        ("apple", "x"),
-        ("banana", "x"),
-        ("apricot", "x"),
-    ];
+    let candidates = vec![("apple", "x"), ("banana", "x"), ("apricot", "x")];
     // "ap" 应该命中 apple / apricot,banana 不命中。
     // 这里不断言 apple / apricot 之间的相对顺序——具体打分由 skim 决定,
     // 我们只保证 banana 被过滤掉。

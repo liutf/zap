@@ -1570,9 +1570,7 @@ impl BlocklistAIController {
             // 二次失败时不再循环排队:若仍报 Pending,Err 已被 send_request_input 内部重新
             // 写入 pending_byop_requests;若是其它错误则按 controller 已有路径处理。
             if e.downcast_ref::<PendingByopToolResultsError>().is_none() {
-                log::error!(
-                    "[byop-readiness] failed to flush pending BYOP request: {e:?}"
-                );
+                log::error!("[byop-readiness] failed to flush pending BYOP request: {e:?}");
             }
         }
         true

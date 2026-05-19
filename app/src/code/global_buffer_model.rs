@@ -240,9 +240,7 @@ impl GlobalBufferModel {
                         start: CharOffset::from(
                             usize::try_from(e.start_offset).unwrap_or(usize::MAX),
                         ),
-                        end: CharOffset::from(
-                            usize::try_from(e.end_offset).unwrap_or(usize::MAX),
-                        ),
+                        end: CharOffset::from(usize::try_from(e.end_offset).unwrap_or(usize::MAX)),
                         text: e.text.clone(),
                     })
                     .collect();
