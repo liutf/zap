@@ -46,6 +46,11 @@ fn does_not_detect_unrelated_or_non_interactive_ssh_commands() {
         "warp_run_generator_command 42 'ssh user@host ls'",
         "Warp-Run-GeneratorCommand 42 'git status' -ErrorAction Ignore",
         "rsync myfile.txt ssh://user@server.com",
+        // 右引号后还粘着字符,故意拒绝 tokenize,避免被错切成 `ssh`
+        // 然后通过 `ssh hello-world` 误判为交互会话。
+        r#""ssh"hello-world"#,
+        // 未闭合的引号同样拒绝 tokenize。
+        r#""ssh hello world"#,
     ] {
         assert_eq!(
             command_starts_non_terminating_session(command),

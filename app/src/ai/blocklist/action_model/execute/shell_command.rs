@@ -400,6 +400,12 @@ impl ShellCommandExecutor {
                     ));
                 }
                 let command = block.command_with_secrets_unobfuscated(false);
+                // 仅在 `ReadShellCommandOutput` 路径上根据命令内容下调等待时长:此处
+                // 是 agent 对一个**仍在运行**的 block 的二次轮询,默认走 `OnCompletion`
+                // 时会等满 `MAX_AGENT_DELAY_DURATION`(120s)。对 ssh / mosh / sftp /
+                // telnet 等永不主动退出的交互会话来说,这种等待没有意义。
+                // `RequestCommandOutput`(首次发起)使用 `MAX_WAIT_DURATION = 2s` 的默
+                // 认超时,本就不会卡 120s,因此无需同样处理。
                 let delay = effective_read_shell_command_delay(&command, delay.clone());
                 drop(model);
 
@@ -714,6 +720,11 @@ impl ShellCommandExecutor {
     }
 }
 
+/// `action_result_future` 内部使用的等待策略。
+///
+/// 相比对外的 `Option<ShellCommandDelay>`,这里把 `OnCompletion` 的 timeout
+/// 从隐式常量提升为显式字段,便于按命令场景动态调整(见
+/// `effective_read_shell_command_delay`)。
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 enum ActionResultDelay {
     Default,
@@ -733,6 +744,19 @@ impl ActionResultDelay {
     }
 }
 
+/// 把 agent 请求的 `ShellCommandDelay` 映射成内部使用的 `ActionResultDelay`,
+/// 并对**永不主动退出**的交互会话(ssh / mosh / sftp / telnet 等)做特殊处理:
+///
+/// 1. `Some(OnCompletion)` —— 把 timeout 从 `MAX_AGENT_DELAY_DURATION`(120s)
+///    缩短到 `MAX_WAIT_DURATION`(2s),避免 agent 在永不结束的命令上死等。
+/// 2. `None`(默认)—— 主动**升级**为 `OnCompletion { 2s }`,而不是保留
+///    `Default`。注意这会同步改变 `action_result_future` 内 `is_preempted` 的
+///    取值:`Default` + `Timeout` 不算抢占,而 `OnCompletion` + `Timeout` 会
+///    标记为抢占,从而让 server 把这次快照理解为"先看一眼"而非"命令完成"。
+///    对交互会话来说这是正确语义。
+/// 3. `Some(Duration(d))` —— 保留 agent 的显式请求,不做改写。
+///
+/// 非交互命令一律走 `from_shell_command_delay` 的原始映射。
 fn effective_read_shell_command_delay(
     command: &str,
     delay: Option<ShellCommandDelay>,
@@ -748,6 +772,15 @@ fn effective_read_shell_command_delay(
     ActionResultDelay::from_shell_command_delay(delay)
 }
 
+/// 判断 `command` 是否会启动一个**永不主动退出**的交互会话。命中规则:
+/// - 被 Warp generator wrapper 包裹的命令,递归判断内部命令。
+/// - 裸 `ssh ...`(走 `parse_interactive_ssh_command`,会正确排除 `-T` / `-W`
+///   等非交互形式)。
+/// - 带路径或带 `.exe` 的 ssh(改写为裸 `ssh` 后再判)。
+/// - `mosh` / `sftp` / `telnet`(含 `.exe`)等没有 ssh 那样的非交互旗标,直接按
+///   可执行名匹配即可。
+///
+/// 仅供 `effective_read_shell_command_delay` 使用的启发式检测,误判后果有限。
 fn command_starts_non_terminating_session(command: &str) -> bool {
     let command = command.trim_start();
     in_band_generator_command(command)
@@ -765,6 +798,17 @@ fn command_starts_non_terminating_session(command: &str) -> bool {
         })
 }
 
+/// 解开 Warp 自身的 generator wrapper,把里面真正要跑的命令抽出来。
+///
+/// wrapper 协议形如:`<wrapper> <generator_id> '<inner_command>' [extra flags...]`
+/// 其中:
+/// - `<wrapper>` 是 `warp_run_generator_command`(POSIX shell)或
+///   `Warp-Run-GeneratorCommand`(PowerShell,大小写不敏感)。
+/// - `<generator_id>` 是数字 id,这里不解析,直接跳过。
+/// - `<inner_command>` 是被单引号包裹的真实命令字符串,也就是我们要返回的内容。
+///
+/// 协议固定按位置取 `tokens[2]`;若后续 wrapper 新增可选参数破坏了位置假设,这
+/// 里会静默失配(返回 None),最坏情况只是退回到旧的 120s 等待,不会引入错误行为。
 fn in_band_generator_command(command: &str) -> Option<String> {
     let tokens = shell_words::split(command.trim_start()).ok()?;
     if tokens.len() >= 3
@@ -777,6 +821,14 @@ fn in_band_generator_command(command: &str) -> Option<String> {
     }
 }
 
+/// 当命令的可执行入口是带路径或带 `.exe` 后缀的 ssh 时,把它改写为裸 `ssh`,
+/// 以便复用 `parse_interactive_ssh_command` 这套只接受 `^ssh\s+...` 的解析。
+///
+/// 例如 `"C:\Windows\System32\OpenSSH\ssh.exe" host -p 22` 会被改写为
+/// `ssh host -p 22`。其余参数原样保留(`rest` 是 `first_executable_token` 切
+/// 完第一个 token 后的剩余字符串)。
+///
+/// 命名上只做"前缀改写",不规范化路径中的反斜杠/引号,也不展开转义。
 fn normalized_ssh_command(command: &str) -> Option<String> {
     let (token, rest) = first_executable_token(command)?;
     let name = command_basename(token);
@@ -792,6 +844,11 @@ fn first_executable_name(command: &str) -> Option<String> {
     Some(command_basename(token).to_ascii_lowercase())
 }
 
+/// 返回命令真正的"可执行入口" token,跳过常见的调用前缀:
+/// - PowerShell 调用运算符 `&`(必须是独立 token,如 `& "C:\...\ssh.exe" host`)。
+/// - POSIX `command` 内建(`command ssh host`),用于绕过 alias/function。
+///
+/// 只剥离一层前缀,够覆盖实际场景;不支持 `&&` 链、`call`、`exec` 等其他形态。
 fn first_executable_token(command: &str) -> Option<(&str, &str)> {
     let (token, rest) = first_command_token(command)?;
     if token == "&" || token.eq_ignore_ascii_case("command") {
@@ -801,6 +858,18 @@ fn first_executable_token(command: &str) -> Option<(&str, &str)> {
     }
 }
 
+/// 启发式 tokenization:取出命令的第一个 token,以及它后面剩余的原始字符串。
+///
+/// 故意**不**使用 `shell_words::split`,原因有二:
+/// 1. `shell_words` 会因 PowerShell 调用运算符 `&` 等非 POSIX 字符直接 fail,
+///    而我们需要识别这类形态。
+/// 2. 我们只需要"第一个 token + rest"两段,不需要完整 token 流,手写更直接。
+///
+/// 引号处理只识别字符串**起始位置**的 `"` 或 `'`,且不处理转义。为了避免
+/// `"foo"bar`、`"ssh"hello-world` 这类"右引号后还粘着字符"的输入被错切成
+/// `foo` / `ssh` 进而触发**误检**(把普通命令认成交互会话),这里要求右引号
+/// 后必须紧跟空白或字符串结尾;不满足就返回 `None`,让上层走"退回到旧的等待
+/// 行为"这条安全分支,而不是冒着 false-positive 风险硬切。
 fn first_command_token(command: &str) -> Option<(&str, &str)> {
     let command = command.trim_start();
     if command.is_empty() {
@@ -808,19 +877,23 @@ fn first_command_token(command: &str) -> Option<(&str, &str)> {
     }
 
     let mut chars = command.char_indices();
-    let Some((_, first)) = chars.next() else {
-        return None;
-    };
+    let (_, first) = chars.next()?;
     if first == '"' || first == '\'' {
         for (idx, ch) in chars {
             if ch == first {
                 let token = &command[first.len_utf8()..idx];
                 let rest = &command[idx + ch.len_utf8()..];
+                // 右引号后必须是空白或字符串末尾;否则视为无法 tokenize,
+                // 让调用方退回到不抢占的安全路径。
+                if !rest.is_empty() && !rest.starts_with(char::is_whitespace) {
+                    return None;
+                }
                 return Some((token, rest));
             }
         }
 
-        return Some((&command[first.len_utf8()..], ""));
+        // 没找到配对的右引号:同样视为无法 tokenize。
+        return None;
     }
 
     let end = command.find(char::is_whitespace).unwrap_or(command.len());
