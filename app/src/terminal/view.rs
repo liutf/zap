@@ -1624,7 +1624,7 @@ pub enum Event {
     OpenWorkflowModalWithWorkflowObject(SyncId),
     // Tell the pane group to open the workflow modal with an unsaved workflow.
     OpenWorkflowModalWithTemporary(Box<Workflow>),
-    OpenWarpDriveObjectInPane(ObjectUid),
+    ZapDriveObjectInPane(ObjectUid),
     OpenSuggestedAgentModeWorkflowModal {
         workflow_and_id: SuggestedAgentModeWorkflowAndId,
     },
@@ -1804,7 +1804,7 @@ pub enum Event {
         target: FileTarget,
         line_col: Option<LineAndColumnArg>,
     },
-    /// OpenWarp:终端里 Ctrl/Cmd+点击远端 SSH 会话输出中的文件路径时发出。
+    /// Zap:终端里 Ctrl/Cmd+点击远端 SSH 会话输出中的文件路径时发出。
     /// 走 buffer-sync 协议在编辑器里打开远端文件,而不是本地 `OpenFileWithTarget`。
     #[cfg(all(feature = "local_tty", feature = "local_fs"))]
     OpenRemoteFileFromTerminal {
@@ -2434,7 +2434,7 @@ pub struct TerminalView {
     #[cfg_attr(not(feature = "local_fs"), allow(dead_code))]
     file_link_scanning_join_handle: Option<JoinHandle<()>>,
 
-    /// OpenWarp:远端 SSH 会话的 cwd 目录列表缓存,用于精确校验终端文件链接。
+    /// Zap:远端 SSH 会话的 cwd 目录列表缓存,用于精确校验终端文件链接。
     ///
     /// 键是 `(session_id, cwd 绝对路径)`,值为该目录的真实子项列表;`None`
     /// 表示该 cwd 的列表正在异步拉取中(daemon `ListDirectory` RPC)。
@@ -3475,7 +3475,7 @@ impl TerminalView {
             &ai_action_model.as_ref(ctx).shell_command_executor(ctx),
             Self::handle_shell_command_executor_event,
         );
-        // OpenWarp BYOP:订阅 suggest_prompt 工具的 chip event,把模型主动建议的 prompt
+        // Zap BYOP:订阅 suggest_prompt 工具的 chip event,把模型主动建议的 prompt
         // 渲染成 input 上方的 chip。原版 emit 被 PromptSuggestionsViaMAA cargo feature
         // gate(`action_model/execute/suggest_prompt.rs:56`),OSS 默认无人订阅 → chip
         // 永远不显示 → oneshot channel 永挂 → conversation 卡死。已去掉 emit gate,
@@ -8165,7 +8165,7 @@ impl TerminalView {
         ctx: &mut ViewContext<Self>,
     ) {
         match event {
-            WarpifySuccessBlockEvent::OpenWarpifySettings => {
+            WarpifySuccessBlockEvent::ZapifySettings => {
                 ctx.emit(Event::OpenSettings(SettingsSection::Warpify));
             }
         }
@@ -8473,7 +8473,7 @@ impl TerminalView {
         let should_start_new_conversation = suggestion.should_start_new_conversation;
         let conversation_id = banner_state.conversation_id;
         let trigger_block_id = trigger.as_ref().and_then(|t| t.block_id());
-        // OpenWarp BYOP:克隆 byop_action_id + prompt,用于 accept 末尾通知 executor
+        // Zap BYOP:克隆 byop_action_id + prompt,用于 accept 末尾通知 executor
         // (`complete_suggest_prompt_action(Accepted { query })` 关 oneshot channel)。
         let byop_banner_for_completion = banner_state
             .byop_action_id
@@ -8572,7 +8572,7 @@ impl TerminalView {
             );
         }
 
-        // OpenWarp BYOP:模型主动建议的 chip 被用户接受 → 通知 executor 关
+        // Zap BYOP:模型主动建议的 chip 被用户接受 → 通知 executor 关
         // oneshot channel,让 BYOP loop 拿到 `Accepted{query}` result,模型下一轮
         // 可见到"用户已采纳并提交了那条 prompt"的 tool_result。
         if let Some(banner) = byop_banner_for_completion.as_ref() {
@@ -10773,7 +10773,7 @@ impl TerminalView {
                 me.remove_ssh_remote_server_choice_block(session_id, ctx);
                 ctx.emit(Event::RemoteServerSkipRequested { session_id });
             }
-            SshRemoteServerChoiceViewEvent::OpenWarpifySettings => {
+            SshRemoteServerChoiceViewEvent::ZapifySettings => {
                 ctx.emit(Event::OpenSettings(SettingsSection::Warpify));
             }
         });
@@ -11398,7 +11398,7 @@ impl TerminalView {
         let should_show_onboarding = FeatureFlag::AgentOnboarding.is_enabled()
             && !is_onboarded
             && !is_anonymous_or_logged_out;
-        let is_launch_modal_open = OneTimeModalModel::as_ref(ctx).is_openwarp_launch_modal_open();
+        let is_launch_modal_open = OneTimeModalModel::as_ref(ctx).is_zap_launch_modal_open();
 
         let has_plugin_instructions_block = self.rich_content_views.iter().any(|rc| {
             matches!(
@@ -12395,7 +12395,7 @@ impl TerminalView {
 
     fn clear_prompt_suggestions(&mut self, ctx: &mut ViewContext<Self>) {
         if let Some(banner) = self.inline_banners_state.prompt_suggestions_banner.take() {
-            // OpenWarp BYOP:若该 chip 来自 suggest_prompt 工具,需要 cancel 掉
+            // Zap BYOP:若该 chip 来自 suggest_prompt 工具,需要 cancel 掉
             // 对应 oneshot channel,否则 BYOP loop 永挂等 result。
             self.complete_byop_suggest_prompt_if_needed(&banner, None, ctx);
             self.input.update(ctx, |input, ctx| {
@@ -12565,7 +12565,7 @@ impl TerminalView {
         self.update_scroll_position_locking(ScrollPositionUpdate::AfterEnd, ctx);
     }
 
-    /// OpenWarp BYOP:模型主动调 `suggest_prompt` 工具时,executor emit 此事件携带
+    /// Zap BYOP:模型主动调 `suggest_prompt` 工具时,executor emit 此事件携带
     /// prompt + label + action_id。
     ///
     /// **设计语义**:`suggest_prompt` 是 fire-and-forget(对齐 opencode agentic 工具行为)
@@ -14084,7 +14084,7 @@ impl TerminalView {
                 let is_copy_both_disabled =
                     is_copy_commands_disabled && tail_block.output_to_string().trim().is_empty();
 
-                // OpenWarp:删除 "Share block..." / "Share session..." 入口(云端依赖)
+                // Zap:删除 "Share block..." / "Share session..." 入口(云端依赖)
                 let _ = is_share_disabled;
 
                 let mut items = vec![
@@ -14266,7 +14266,7 @@ impl TerminalView {
             ) => {
                 // If selection is empty, only show non-block related options
                 let items: Vec<MenuItem<TerminalAction>> = Vec::new();
-                // OpenWarp:删除 session_sharing_context_menu_items(云端 shared session 入口)
+                // Zap:删除 session_sharing_context_menu_items(云端 shared session 入口)
                 items
             }
             _ => vec![],
@@ -14661,7 +14661,7 @@ impl TerminalView {
                 .into_item(),
         );
 
-        // OpenWarp:删除 session_sharing_context_menu_items(云端 shared session 入口)
+        // Zap:删除 session_sharing_context_menu_items(云端 shared session 入口)
 
         // Section 2: AI Command Search, Ask Warp AI
         items.extend([
@@ -14895,7 +14895,7 @@ impl TerminalView {
             }
         }
 
-        // OpenWarp:删除 session_sharing_context_menu_items(云端 shared session 入口)
+        // Zap:删除 session_sharing_context_menu_items(云端 shared session 入口)
         let current_shell = model.shell_launch_state().available_shell();
         let mut pane_context_menu_items = self.pane_context_menu_items(current_shell, ctx);
         if !menu_items.is_empty() && !pane_context_menu_items.is_empty() {
@@ -15160,7 +15160,7 @@ impl TerminalView {
         );
         items.push(MenuItem::Separator);
 
-        // Remote conversation sharing was removed in OpenWarp; share-conversation menu item omitted.
+        // Remote conversation sharing was removed in Zap; share-conversation menu item omitted.
         let _ = ai_conversation_id;
 
         items.push(
@@ -16041,7 +16041,7 @@ impl TerminalView {
         }
     }
 
-    /// OpenWarp:若当前活动 block 所属会话是 remote-server 会话,返回其 `HostId`。
+    /// Zap:若当前活动 block 所属会话是 remote-server 会话,返回其 `HostId`。
     ///
     /// 用于在终端里 Ctrl/Cmd+点击文件路径时,判断应当走本地还是远端 buffer-sync
     /// 打开流程。非 remote-server 会话返回 `None`(保持本地行为不变)。
@@ -16063,7 +16063,7 @@ impl TerminalView {
         }
     }
 
-    /// OpenWarp:把终端文件链接里已解析出的绝对路径当作远端路径,构造 `RemotePath`。
+    /// Zap:把终端文件链接里已解析出的绝对路径当作远端路径,构造 `RemotePath`。
     /// 远端 SSH 主机均为 Unix,路径字符串由 shell-integration 上报的远端 cwd 拼接而来。
     #[cfg(all(feature = "local_tty", feature = "local_fs"))]
     fn remote_path_from_terminal_path(
@@ -16082,7 +16082,7 @@ impl TerminalView {
         ))
     }
 
-    /// OpenWarp:判断终端文件链接里的远端路径是否指向目录。
+    /// Zap:判断终端文件链接里的远端路径是否指向目录。
     ///
     /// 依据是缓存下来的远端 cwd 目录列表(由 `link_detection.rs` 拉取并写入)。
     /// 未缓存或非目录返回 `false`(按文件处理)。
@@ -16104,7 +16104,7 @@ impl TerminalView {
         })
     }
 
-    /// OpenWarp:在当前(远端)终端会话里 `cd` 进指定目录。
+    /// Zap:在当前(远端)终端会话里 `cd` 进指定目录。
     ///
     /// 与本地点击目录链接的行为对齐 —— 远端目录无法在编辑器里打开,改为
     /// 在该远端 shell 会话中执行 `cd <dir>`。
@@ -16126,7 +16126,7 @@ impl TerminalView {
     ) {
         ctx.notify();
 
-        // OpenWarp:远端 SSH 会话走 buffer-sync 协议打开远端文件。
+        // Zap:远端 SSH 会话走 buffer-sync 协议打开远端文件。
         #[cfg(all(feature = "local_tty", feature = "local_fs"))]
         if let Some(host_id) = self.active_session_remote_host_id(ctx) {
             // 远端目录点击:不在编辑器里打开,改为在该远端会话里 `cd` 进去。
@@ -16166,7 +16166,7 @@ impl TerminalView {
     ) {
         ctx.notify();
 
-        // OpenWarp:远端 SSH 会话走 buffer-sync 协议打开远端文件。
+        // Zap:远端 SSH 会话走 buffer-sync 协议打开远端文件。
         // 远端文件统一在内嵌代码编辑器打开,忽略 `target`(外部编辑器无法访问远端文件)。
         #[cfg(all(feature = "local_tty", feature = "local_fs"))]
         if let Some(host_id) = self.active_session_remote_host_id(ctx) {
@@ -17984,7 +17984,7 @@ impl TerminalView {
             }
             AIBlockEvent::OpenCitation(citation) => match citation {
                 AIAgentCitation::WarpDriveObject { uid } => {
-                    ctx.emit(Event::OpenWarpDriveObjectInPane(uid.clone()));
+                    ctx.emit(Event::ZapDriveObjectInPane(uid.clone()));
                 }
                 AIAgentCitation::WarpDocumentation { path } => {
                     ctx.open_url(&format!("https://docs.warp.dev/{path}"));
@@ -17998,7 +17998,7 @@ impl TerminalView {
             }
             AIBlockEvent::OpenWorkflow { sync_id } => {
                 if let Some(object) = ObjectStoreModel::as_ref(ctx).get_workflow(sync_id) {
-                    ctx.emit(Event::OpenWarpDriveObjectInPane(object.uid()));
+                    ctx.emit(Event::ZapDriveObjectInPane(object.uid()));
                 }
             }
             AIBlockEvent::OpenSuggestedAgentModeWorkflowModal { workflow_and_id } => {
@@ -20921,10 +20921,10 @@ impl TerminalView {
         let render_context = self.get_terminal_view_render_context(model, app);
 
         let enforce_minimum_contrast = *FontSettings::as_ref(app).enforce_minimum_contrast;
-        // OpenWarp:alt-screen 渲染 cli subagent 浮窗的判定从原 `is_agent_in_control()`
+        // Zap:alt-screen 渲染 cli subagent 浮窗的判定从原 `is_agent_in_control()`
         // 放宽到 `is_agent_in_control_or_tagged_in()`。原来的判定只考虑 handoff 路径
         // (agent 拿走 LRC 控制权),漏掉了用户主动 tag-in 路径(`SetInputModeAgent` →
-        // `tag_in_agent_for_user_long_running_command`)。后者是 OpenWarp BYOP 链路下
+        // `tag_in_agent_for_user_long_running_command`)。后者是 Zap BYOP 链路下
         // 浮窗的主要入口(controller `send_request_input` 检测 tagged-in → 注入
         // `lrc_command_id` → chat_stream 合成虚拟 subagent → spawn CLISubagentView),
         // 不放宽就算 view 已建,alt-screen 仍不挂载,模型回复永远看不到。

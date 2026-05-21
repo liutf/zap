@@ -8,7 +8,7 @@ Version:     @@VERSION@@
 Release:     @@RELEASE@@
 Vendor:      Denver Technologies, Inc.
 Url:         https://warp.dev
-Packager:    OpenWarp Maintainers <openwarp-maintainers@localhost>
+Packager:    Zap Maintainers <zap-maintainers@localhost>
 License:     https://warp.dev/terms-of-service
 Obsoletes:   warp-cli@@CHANNEL_SUFFIX@@ < %{version}
 Obsoletes:   oz = v0.2026.02.09.06.06.stable_00
@@ -77,6 +77,6 @@ ln -s %{prefix}/warpdotdev/%{name}/@@BINARY_NAME@@ %{buildroot}%{_bindir}/@@BINA
 ###############################################################################
 %post
 
-# OpenWarp 不配置上游 Warp RPM 软件源,也不安装上游签名 key。
-# OpenWarp 不做 post-install repo 配置；deb/rpm 包通过 GitHub Release 分发。
+# Zap 不配置上游 Warp RPM 软件源,也不安装上游签名 key。
+# Zap 不做 post-install repo 配置；deb/rpm 包通过 GitHub Release 分发。
 exit 0

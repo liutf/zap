@@ -87,7 +87,7 @@ impl fmt::Display for DriveObjectType {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Default)]
-pub struct OpenWarpDriveObjectSettings {
+pub struct ZapDriveObjectSettings {
     /// The folder that should be focused in the Warp Drive when the object is opened.
     pub focused_folder_id: Option<ServerId>,
     /// The email of the user to invite to the object, if the object is being opened via the request access flow.
@@ -95,10 +95,10 @@ pub struct OpenWarpDriveObjectSettings {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct OpenWarpDriveObjectArgs {
+pub struct ZapDriveObjectArgs {
     pub object_type: ObjectType,
     pub server_id: ServerId,
-    pub settings: OpenWarpDriveObjectSettings,
+    pub settings: ZapDriveObjectSettings,
 }
 
 /// Enum to use to pass down type and id between actions to avoid multiplying actions whenever we

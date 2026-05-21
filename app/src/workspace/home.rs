@@ -1,4 +1,4 @@
-//! OpenWarp Home
+//! Zap Home
 //!
 //! This is the landing page for new tabs if session creation isn't supported (e.g. on the web).
 //! It's intentionally small and local-only.
@@ -8,9 +8,9 @@ use warpui::ViewContext;
 use super::view::Workspace;
 use crate::pane_group::{AnyPaneContent, FilePane};
 
-const WARP_HOME_TITLE: &str = "Welcome to OpenWarp";
+const WARP_HOME_TITLE: &str = "Welcome to Zap";
 const WARP_HOME_CONTENT: &str = r#"
-Welcome to OpenWarp.
+Welcome to Zap.
 
 Use this local workspace to:
 * Create, view, and edit Warp Drive objects

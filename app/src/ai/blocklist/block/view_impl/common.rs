@@ -2949,7 +2949,7 @@ pub fn render_failed_output(props: FailedOutputProps, app: &AppContext) -> Box<d
 
     let error_text = match props.error {
         RenderableAIError::QuotaLimit => {
-            // OpenWarp(Phase 3c A1):删除 QuotaLimit 中依赖 `AIRequestUsageModel`
+            // Zap(Phase 3c A1):删除 QuotaLimit 中依赖 `AIRequestUsageModel`
             // 渲染刷新时间的逻辑。本地化后云端额度不适用，仅保留通用错误文案。
             format!("{ERROR_APOLOGY_TEXT}\n\n{INTERNAL_WARP_ERROR}")
         }
@@ -3342,7 +3342,7 @@ pub(crate) fn render_debug_footer<V: View>(
     );
     debug_row.add_child(copy_button_with_tooltip);
 
-    // OpenWarp: 不再用 `Expanded` —— alt-screen / 长命令 take-over 场景下,父容器
+    // Zap: 不再用 `Expanded` —— alt-screen / 长命令 take-over 场景下,父容器
     // 沿主轴是 infinite constraint(BYOP error block 渲染路径),`Flex + Expanded`
     // 直接 panic `flex contains flexible children but has an infinite constraint`。
     // debug_row 本身宽度由内部 Shrinkable 控制,不需要主动撑满父级。

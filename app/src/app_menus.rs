@@ -540,7 +540,7 @@ fn make_new_drive_menu(ctx: &AppContext) -> Menu {
         updateable_custom_item_without_checkmark(CustomAction::OpenMCPServerCollection, ctx),
     ]);
 
-    // OpenWarp Phase 2a: removed `Share pane contents` menu item (cloud
+    // Zap Phase 2a: removed `Share pane contents` menu item (cloud
     // sharing UI gone) — keeping the entry would render a clickable menu
     // item that does nothing.
 
@@ -799,7 +799,7 @@ fn debug_menu_items() -> Vec<MenuItem> {
             None,
         )));
 
-        // OpenWarp Wave 3-1:"Create anonymous user" debug menu item 随
+        // Zap Wave 3-1:"Create anonymous user" debug menu item 随
         // `workspace:debug_create_anonymous_user` global action + AuthClient 一同物理删。
     }
 

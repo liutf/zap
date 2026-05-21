@@ -49,14 +49,14 @@ pub enum SshRemoteServerChoiceViewAction {
     Install,
     Skip,
     ToggleDoNotAskAgain,
-    OpenWarpifySettings,
+    ZapifySettings,
 }
 
 #[derive(Clone, Debug)]
 pub enum SshRemoteServerChoiceViewEvent {
     Install,
     Skip,
-    OpenWarpifySettings,
+    ZapifySettings,
 }
 
 /// Choice block prompting the user to install the remote-server binary on the remote host or skip.
@@ -177,7 +177,7 @@ impl SshRemoteServerChoiceView {
                 crate::t!("ssh-remote-choice-manage-warpify-settings"),
                 None,
                 Some(Box::new(|ctx| {
-                    ctx.dispatch_typed_action(SshRemoteServerChoiceViewAction::OpenWarpifySettings);
+                    ctx.dispatch_typed_action(SshRemoteServerChoiceViewAction::ZapifySettings);
                 })),
                 self.manage_settings_mouse_state.clone(),
             )
@@ -304,8 +304,8 @@ impl TypedActionView for SshRemoteServerChoiceView {
                 );
                 ctx.notify();
             }
-            SshRemoteServerChoiceViewAction::OpenWarpifySettings => {
-                ctx.emit(SshRemoteServerChoiceViewEvent::OpenWarpifySettings);
+            SshRemoteServerChoiceViewAction::ZapifySettings => {
+                ctx.emit(SshRemoteServerChoiceViewEvent::ZapifySettings);
             }
         }
     }

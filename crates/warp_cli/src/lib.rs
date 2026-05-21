@@ -19,7 +19,7 @@ pub mod skill;
 pub mod agent;
 pub mod completions;
 pub mod config_file;
-// OpenWarp Wave 7-2:`environment` CLI 随 cloud ambient agent 主体子系统物理删。
+// Zap Wave 7-2:`environment` CLI 随 cloud ambient agent 主体子系统物理删。
 pub mod json_filter;
 pub mod mcp;
 pub mod model;
@@ -83,7 +83,7 @@ pub struct GlobalOptions {
 #[command(
     name = "oz",
     display_name = "Oz",
-    about = r#"OpenWarp local agent CLI
+    about = r#"Zap local agent CLI
 
 The Oz CLI is a tool for running and managing local coding agents.
 Use the CLI to:
@@ -140,7 +140,7 @@ impl Args {
             } else {
                 use clap::FromArgMatches as _;
 
-                // OpenWarp Wave 7-2:`warp environment` 子命令 随 cloud ambient agent 主体物理删 ——
+                // Zap Wave 7-2:`warp environment` 子命令 随 cloud ambient agent 主体物理删 ——
                 // 以前这里有个反向拦截:在 clap 解析前检查并提前报错。
                 // 现在 enum variant 已删，clap 会自然报“unrecognized subcommand”。
 
@@ -188,7 +188,7 @@ impl Args {
     pub fn clap_command() -> clap::Command {
         let mut command = <Args as CommandFactory>::command();
 
-        // OpenWarp Wave 7-2:`environment` 子命令与 `--environment` 参数随 cloud ambient agent
+        // Zap Wave 7-2:`environment` 子命令与 `--environment` 参数随 cloud ambient agent
         // 主体物理删 —— enum variant 已从 `CliCommand` 和 `RunAgentArgs` 移除。
 
         // Hide the provider subcommand from help text
@@ -319,7 +319,7 @@ pub enum CliCommand {
     #[command(subcommand)]
     Agent(crate::agent::AgentCommand),
 
-    // OpenWarp Wave 7-2:`Environment` variant 随 cloud ambient agent 主体子系统物理删。
+    // Zap Wave 7-2:`Environment` variant 随 cloud ambient agent 主体子系统物理删。
     /// Manage MCP servers.
     #[command(subcommand)]
     MCP(crate::mcp::MCPCommand),

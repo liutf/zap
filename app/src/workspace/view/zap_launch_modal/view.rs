@@ -23,7 +23,7 @@ use crate::view_components::action_button::{ActionButton, ActionButtonTheme, But
 
 const MODAL_WIDTH: f32 = 420.;
 const HERO_HEIGHT: f32 = 92.;
-const HERO_IMAGE_PATH: &str = "async/png/onboarding/openwarp_launch_banner.png";
+const HERO_IMAGE_PATH: &str = "async/png/onboarding/zap_launch_banner.png";
 const REPO_URL: &str = "https://github.com/warpdotdev/warp";
 const CONTRIBUTING_URL: &str = "https://github.com/warpdotdev/warp/blob/master/CONTRIBUTING.md";
 
@@ -44,23 +44,23 @@ fn feature_items() -> [FeatureItem; 3] {
     [
         FeatureItem {
             icon: Icon::HeartHand,
-            title: crate::t!("openwarp-launch-contribute-title"),
-            description: crate::t!("openwarp-launch-contribute-description"),
+            title: crate::t!("zap-launch-contribute-title"),
+            description: crate::t!("zap-launch-contribute-description"),
             inline_link: Some(InlineLink {
-                text: crate::t!("openwarp-launch-contribute-link-text"),
+                text: crate::t!("zap-launch-contribute-link-text"),
                 url: CONTRIBUTING_URL,
             }),
         },
         FeatureItem {
             icon: Icon::Oz,
-            title: crate::t!("openwarp-launch-oad-title"),
-            description: crate::t!("openwarp-launch-oad-description"),
+            title: crate::t!("zap-launch-oad-title"),
+            description: crate::t!("zap-launch-oad-description"),
             inline_link: None,
         },
         FeatureItem {
             icon: Icon::MessageChatSquare,
-            title: crate::t!("openwarp-launch-auto-model-title"),
-            description: crate::t!("openwarp-launch-auto-model-description"),
+            title: crate::t!("zap-launch-auto-model-title"),
+            description: crate::t!("zap-launch-auto-model-description"),
             inline_link: None,
         },
     ]
@@ -71,19 +71,19 @@ pub fn init(app: &mut AppContext) {
 
     app.register_fixed_bindings([FixedBinding::new(
         "escape",
-        OpenWarpLaunchModalAction::Close,
-        id!(OpenWarpLaunchModal::ui_name()),
+        ZapLaunchModalAction::Close,
+        id!(ZapLaunchModal::ui_name()),
     )]);
 }
 
 #[derive(Clone, Debug)]
-pub enum OpenWarpLaunchModalAction {
+pub enum ZapLaunchModalAction {
     Close,
     VisitRepo,
 }
 
 #[derive(Clone, Debug)]
-pub enum OpenWarpLaunchModalEvent {
+pub enum ZapLaunchModalEvent {
     Close,
 }
 
@@ -125,24 +125,24 @@ impl ActionButtonTheme for CtaButtonTheme {
     }
 }
 
-pub struct OpenWarpLaunchModal {
+pub struct ZapLaunchModal {
     close_button: ViewHandle<ActionButton>,
     cta_button: ViewHandle<ActionButton>,
 }
 
-impl OpenWarpLaunchModal {
+impl ZapLaunchModal {
     pub fn new(ctx: &mut ViewContext<Self>) -> Self {
         let close_button = ctx.add_view(|_ctx| {
             ActionButton::new("", CloseButtonTheme)
                 .with_icon(Icon::X)
                 .with_size(ButtonSize::Small)
-                .on_click(|ctx| ctx.dispatch_typed_action(OpenWarpLaunchModalAction::Close))
+                .on_click(|ctx| ctx.dispatch_typed_action(ZapLaunchModalAction::Close))
         });
 
         let cta_button = ctx.add_view(|_ctx| {
-            ActionButton::new(crate::t!("openwarp-launch-visit-repo"), CtaButtonTheme)
+            ActionButton::new(crate::t!("zap-launch-visit-repo"), CtaButtonTheme)
                 .with_full_width(true)
-                .on_click(|ctx| ctx.dispatch_typed_action(OpenWarpLaunchModalAction::VisitRepo))
+                .on_click(|ctx| ctx.dispatch_typed_action(ZapLaunchModalAction::VisitRepo))
         });
 
         Self {
@@ -202,7 +202,7 @@ impl OpenWarpLaunchModal {
 
     fn render_title(appearance: &Appearance) -> Box<dyn Element> {
         Text::new(
-            crate::t!("openwarp-launch-title"),
+            crate::t!("zap-launch-title"),
             appearance.ui_font_family(),
             20.,
         )
@@ -213,7 +213,7 @@ impl OpenWarpLaunchModal {
 
     fn render_description(appearance: &Appearance) -> Box<dyn Element> {
         Text::new(
-            crate::t!("openwarp-launch-description"),
+            crate::t!("zap-launch-description"),
             appearance.ui_font_family(),
             14.,
         )
@@ -363,13 +363,13 @@ impl OpenWarpLaunchModal {
     }
 }
 
-impl Entity for OpenWarpLaunchModal {
-    type Event = OpenWarpLaunchModalEvent;
+impl Entity for ZapLaunchModal {
+    type Event = ZapLaunchModalEvent;
 }
 
-impl View for OpenWarpLaunchModal {
+impl View for ZapLaunchModal {
     fn ui_name() -> &'static str {
-        "OpenWarpLaunchModal"
+        "ZapLaunchModal"
     }
 
     fn on_focus(&mut self, _focus_ctx: &warpui::FocusContext, ctx: &mut ViewContext<Self>) {
@@ -401,17 +401,17 @@ impl View for OpenWarpLaunchModal {
     }
 }
 
-impl TypedActionView for OpenWarpLaunchModal {
-    type Action = OpenWarpLaunchModalAction;
+impl TypedActionView for ZapLaunchModal {
+    type Action = ZapLaunchModalAction;
 
     fn handle_action(&mut self, action: &Self::Action, ctx: &mut ViewContext<Self>) {
         match action {
-            OpenWarpLaunchModalAction::Close => {
-                ctx.emit(OpenWarpLaunchModalEvent::Close);
+            ZapLaunchModalAction::Close => {
+                ctx.emit(ZapLaunchModalEvent::Close);
             }
-            OpenWarpLaunchModalAction::VisitRepo => {
+            ZapLaunchModalAction::VisitRepo => {
                 ctx.open_url(REPO_URL);
-                ctx.emit(OpenWarpLaunchModalEvent::Close);
+                ctx.emit(ZapLaunchModalEvent::Close);
             }
         }
     }

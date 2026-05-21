@@ -1018,7 +1018,7 @@ impl AIBlock {
             ActiveSessionEvent::Bootstrapped => {}
         });
 
-        // OpenWarp:原这里订阅 GetRelevantFilesController 的 Success 事件以在 RAG
+        // Zap:原这里订阅 GetRelevantFilesController 的 Success 事件以在 RAG
         // 完成后走个 `ctx.notify` 刷新 UI。该 controller 已随 outline 推退下线,
         // 订阅点一并删除。
 
@@ -1027,7 +1027,7 @@ impl AIBlock {
                 .on_click(|ctx| ctx.dispatch_typed_action(AIBlockAction::OpenAIFactCollection))
         });
 
-        // OpenWarp(Phase 3c A1):删除对 `AIRequestUsageModelEvent::RequestBonusRefunded`
+        // Zap(Phase 3c A1):删除对 `AIRequestUsageModelEvent::RequestBonusRefunded`
         // 的订阅。本地化后该事件永远不会被 emit(没有 `provide_negative_feedback_response`
         // RPC 调用),订阅本身已成为永久空转的死代码。`request_refunded_count` 字段保留
         // 但永远是初始值 None。

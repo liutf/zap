@@ -258,7 +258,7 @@ pub enum WorkspaceAction {
     ToggleWarpDrive,
     /// Unconditionally opens Warp Drive. This is used in the case of user lifecycle
     /// events like new user onboarding or when the user joins a team.
-    OpenWarpDrive,
+    ZapDrive,
     /// Toggles the right panel. This happens as an explicit action from the user.
     ToggleRightPanel,
     /// Opens the code review panel (right panel) without toggling. If already open,
@@ -384,7 +384,7 @@ pub enum WorkspaceAction {
     },
     OpenAIFactCollection,
     OpenMCPServerCollection,
-    // OpenWarp Wave 7-3:`OpenEnvironmentManagementPane` WorkspaceAction 随 ambient-agent UI
+    // Zap Wave 7-3:`OpenEnvironmentManagementPane` WorkspaceAction 随 ambient-agent UI
     // 子系统物理删。
     ToggleAIDocumentPane {
         document_id: AIDocumentId,
@@ -518,12 +518,12 @@ pub enum WorkspaceAction {
     /// Reset the AWS Bedrock login banner dismissed state (for debugging).
     #[cfg(debug_assertions)]
     DebugResetAwsBedrockLoginBannerDismissed,
-    /// Open the OpenWarp Launch Modal (for debugging)
+    /// Open the Zap Launch Modal (for debugging)
     #[cfg(debug_assertions)]
-    OpenOpenWarpLaunchModal,
-    /// Reset the OpenWarp launch modal dismissed state (for debugging)
+    OpenZapLaunchModal,
+    /// Reset the Zap launch modal dismissed state (for debugging)
     #[cfg(debug_assertions)]
-    ResetOpenWarpLaunchModalState,
+    ResetZapLaunchModalState,
     /// Install the opencode-warp plugin from GitHub into the global opencode config.
     #[cfg(debug_assertions)]
     InstallOpenCodeWarpPlugin,
@@ -757,7 +757,7 @@ impl WorkspaceAction {
             | StartTabDrag
             | ToggleLeftPanel
             | ToggleWarpDrive
-            | OpenWarpDrive
+            | ZapDrive
             | ClosePanel
             | ToggleRightPanel
             | OpenCodeReviewPanel(..)
@@ -857,8 +857,8 @@ impl WorkspaceAction {
             ToggleConversationTranscriptDetailsPanel => false,
             #[cfg(debug_assertions)]
             DebugResetAwsBedrockLoginBannerDismissed
-            | OpenOpenWarpLaunchModal
-            | ResetOpenWarpLaunchModalState
+            | OpenZapLaunchModal
+            | ResetZapLaunchModalState
             | InstallOpenCodeWarpPlugin
             | UseLocalOpenCodeWarpPlugin => false,
             #[cfg(not(target_family = "wasm"))]
@@ -873,7 +873,7 @@ impl WorkspaceAction {
             FileRenamed { .. } => false, // File rename doesn't change workspace state
             #[cfg(feature = "local_fs")]
             FileDeleted { .. } => false, // File deletion doesn't change workspace state
-            // OpenWarp Wave 7-3:`OpenEnvironmentManagementPane` WorkspaceAction 随 ambient-agent UI
+            // Zap Wave 7-3:`OpenEnvironmentManagementPane` WorkspaceAction 随 ambient-agent UI
             // 子系统物理删。
             #[cfg(target_os = "linux")]
             DismissWaylandCrashRecoveryBannerAndOpenLink => false,

@@ -82,7 +82,7 @@ impl AppExecutionMode {
 
     /// Whether telemetry should be sent synchronously at shutdown.
     ///
-    /// OpenWarp has no telemetry sender, so shutdown must never wait on telemetry work. The method
+    /// Zap has no telemetry sender, so shutdown must never wait on telemetry work. The method
     /// remains as a compatibility surface for callers that still branch on the old capability.
     pub fn send_telemetry_at_shutdown(&self) -> bool {
         false

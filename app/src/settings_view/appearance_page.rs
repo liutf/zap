@@ -280,7 +280,7 @@ pub fn init_actions_from_parent_view<T: Action + Clone>(
         ),
     );
 
-    if !FeatureFlag::OpenWarpNewSettingsModes.is_enabled() {
+    if !FeatureFlag::ZapNewSettingsModes.is_enabled() {
         toggle_binding_pairs.push(
             ToggleSettingActionPair::custom(
                 SettingActionPairDescriptions::new(
@@ -1430,7 +1430,7 @@ impl AppearanceSettingsPageView {
         let tab_settings = TabSettings::as_ref(ctx);
         let mut tab_settings_widgets: Vec<Box<dyn SettingsWidget<View = Self>>> =
             vec![Box::new(TabIndicatorWidget::default())];
-        if !FeatureFlag::OpenWarpNewSettingsModes.is_enabled() {
+        if !FeatureFlag::ZapNewSettingsModes.is_enabled() {
             tab_settings_widgets.push(Box::new(CodeReviewButtonWidget::default()));
         }
         if FeatureFlag::FullScreenZenMode.is_enabled()

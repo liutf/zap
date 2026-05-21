@@ -20,7 +20,7 @@ use crate::{
         update_manager::UpdateManager,
         Owner, StoredObjectMetadata, StoredObjectPermissions,
     },
-    drive::OpenWarpDriveObjectSettings,
+    drive::ZapDriveObjectSettings,
     editor::{DisplayPoint, EditorAction, SelectAction},
     network::NetworkStatus,
     notebooks::{
@@ -124,7 +124,7 @@ fn open_notebook(
     notebook: NotebookObject,
 ) -> BoxFuture<'static, ()> {
     let load_future = handle.update(app, |view, ctx| {
-        view.load(notebook, &OpenWarpDriveObjectSettings::default(), ctx)
+        view.load(notebook, &ZapDriveObjectSettings::default(), ctx)
     });
     app.update(|ctx| ctx.await_spawned_future(load_future.future_id()))
 }
@@ -553,7 +553,7 @@ fn test_close_unmodified() {
         initialize_app(&mut app);
         initial_load(&mut app, vec![]).await;
 
-        // OpenWarp(Wave 4):SyncQueue 整删,原 stop_dequeueing + assert queue 长度不适用。
+        // Zap(Wave 4):SyncQueue 整删,原 stop_dequeueing + assert queue 长度不适用。
 
         let cloud_notebook = mock_stored_notebook("Test", "Some text");
         let notebook_id = cloud_notebook.id;
@@ -575,7 +575,7 @@ fn test_close_unmodified() {
                 .expect("Notebook should exist");
             assert!(!object.metadata().has_pending_content_changes());
 
-            // OpenWarp(Wave 4):SyncQueue 整删,原 `sync_queue.is_empty()` 断言不适用。
+            // Zap(Wave 4):SyncQueue 整删,原 `sync_queue.is_empty()` 断言不适用。
         })
     });
 }

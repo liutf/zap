@@ -278,7 +278,7 @@ impl ShellCommandExecutor {
                         RequestCommandOutputResult::CancelledBeforeExecution,
                     ));
                 }
-                // OpenWarp:同步等待型命令(wait_until_completion=true)无条件禁用 pager。
+                // Zap:同步等待型命令(wait_until_completion=true)无条件禁用 pager。
                 //
                 // 模型自报的 `uses_pager` 不可靠 —— deepseek-v4-flash 等小模型几乎不会主动标,
                 // 一旦命中 `git diff`/`git log`/`man` 等隐式 pager 就会卡在 less 提示符,

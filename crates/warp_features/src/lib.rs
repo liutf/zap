@@ -545,9 +545,9 @@ pub enum FeatureFlag {
     /// Enables loading and returning bundled skills in the SkillManager.
     BundledSkills,
 
-    /// Enables the OpenWarp launch modal announcing Warp going open-source.
+    /// Enables the Zap launch modal announcing Warp going open-source.
     /// When enabled, the HOA onboarding flow is suppressed.
-    OpenWarpLaunchModal,
+    ZapLaunchModal,
 
     /// Updated tab styling (background colors, border, close button positioning, margins).
     NewTabStyling,
@@ -604,7 +604,7 @@ pub enum FeatureFlag {
 
     /// Enables the new settings to control visibility of Warp Drive, Code Review Panel,
     /// and Project Explorer & Global Search features.
-    OpenWarpNewSettingsModes,
+    ZapNewSettingsModes,
 
     /// Enables vertical tab layout as an alternative to the horizontal tab bar.
     VerticalTabs,

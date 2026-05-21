@@ -6,7 +6,7 @@ pub mod global_search;
 pub(crate) mod launch_modal;
 pub(crate) mod left_panel;
 pub(crate) mod onboarding;
-pub(crate) mod openwarp_launch_modal;
+pub(crate) mod zap_launch_modal;
 pub(crate) mod right_panel;
 mod startup_directory;
 #[cfg(test)]
@@ -105,8 +105,8 @@ use crate::workspace::header_toolbar_editor::{HeaderToolbarEditorEvent, HeaderTo
 use crate::workspace::header_toolbar_item::HeaderToolbarItemKind;
 use crate::workspace::tab_settings::TabCloseButtonPosition;
 use crate::workspace::view::codex_modal::{CodexModal, CodexModalEvent};
-use crate::workspace::view::openwarp_launch_modal::{
-    OpenWarpLaunchModal, OpenWarpLaunchModalEvent,
+use crate::workspace::view::zap_launch_modal::{
+    ZapLaunchModal, ZapLaunchModalEvent,
 };
 use crate::workspace::{ForkFromExchange, ForkedConversationDestination};
 use crate::BlocklistAIHistoryModel;
@@ -142,12 +142,12 @@ use crate::pane_group::{
 use crate::quit_warning::UnsavedStateSummary;
 use crate::search::command_palette::view::NavigationMode;
 use crate::search::slash_command_menu::static_commands::commands;
-// OpenWarp Wave 3-1:`AuthClient` trait 随 server_api/auth.rs 一同物理删。
+// Zap Wave 3-1:`AuthClient` trait 随 server_api/auth.rs 一同物理删。
 use crate::settings::{
     AISettings, AISettingsChangedEvent, CodeSettings, CodeSettingsChangedEvent, CtrlTabBehavior,
     DefaultSessionMode, InputModeSettings,
 };
-// OpenWarp Wave 7-3:`environments_page::EnvironmentsPage` import 随 ambient-agent UI
+// Zap Wave 7-3:`environments_page::EnvironmentsPage` import 随 ambient-agent UI
 // 子系统物理删。
 use crate::settings_view::pane_manager::SettingsPaneManager;
 use crate::settings_view::{SettingsSection, SettingsView, SettingsViewEvent};
@@ -174,7 +174,7 @@ use repo_metadata::RemoteRepositoryIdentifier;
 #[cfg(target_family = "wasm")]
 use url::Url;
 
-// OpenWarp:删除 SharedObjectsCreationDeniedModal(云端 Drive 配额拒绝弹窗)
+// Zap:删除 SharedObjectsCreationDeniedModal(云端 Drive 配额拒绝弹窗)
 
 #[cfg(target_family = "wasm")]
 use crate::wasm_nux_dialog::WasmNUXDialog;
@@ -204,7 +204,7 @@ use crate::drive::import::modal::{ImportModal, ImportModalEvent};
 use crate::drive::workflows::arguments::ArgumentsState;
 use crate::drive::workflows::modal::{WorkflowModal, WorkflowModalEvent};
 use crate::drive::{
-    DriveObjectType, DrivePanel, DrivePanelEvent, ObjectTypeAndId, OpenWarpDriveObjectSettings,
+    DriveObjectType, DrivePanel, DrivePanelEvent, ObjectTypeAndId, ZapDriveObjectSettings,
 };
 use crate::experiments::{BlockOnboarding, Experiment};
 use crate::menu::{
@@ -923,7 +923,7 @@ pub struct Workspace {
     theme_deletion_modal: ViewHandle<ThemeDeletionModal>,
     suggested_agent_mode_workflow_modal: ViewHandle<SuggestedAgentModeWorkflowModal>,
     suggested_rule_modal: ViewHandle<SuggestedRuleModal>,
-    openwarp_launch_modal: ViewHandle<OpenWarpLaunchModal>,
+    zap_launch_modal: ViewHandle<ZapLaunchModal>,
     codex_modal: ViewHandle<CodexModal>,
     toast_stack: ViewHandle<DismissibleToastStack<WorkspaceAction>>,
     agent_toast_stack: ViewHandle<AgentToastStack>,
@@ -1336,7 +1336,7 @@ impl Workspace {
                 if let Some(id) = id_to_force_expand {
                     self.open_notebook(
                         &NotebookSource::Existing(id),
-                        &OpenWarpDriveObjectSettings::default(),
+                        &ZapDriveObjectSettings::default(),
                         ctx,
                         true,
                     );
@@ -1353,7 +1353,7 @@ impl Workspace {
                 if let Some(id) = id_to_force_expand {
                     self.open_workflow_with_existing(
                         id,
-                        &OpenWarpDriveObjectSettings::default(),
+                        &ZapDriveObjectSettings::default(),
                         ctx,
                     );
                     ObjectStoreModel::handle(ctx).update(ctx, |object_store_model, ctx| {
@@ -2513,9 +2513,9 @@ impl Workspace {
 
         let suggested_rule_modal = Self::build_suggested_rule_modal(ctx);
 
-        let openwarp_launch_view = ctx.add_typed_action_view(OpenWarpLaunchModal::new);
-        ctx.subscribe_to_view(&openwarp_launch_view, |me, _, event, ctx| {
-            me.handle_openwarp_launch_modal_event(event, ctx);
+        let zap_launch_view = ctx.add_typed_action_view(ZapLaunchModal::new);
+        ctx.subscribe_to_view(&zap_launch_view, |me, _, event, ctx| {
+            me.handle_zap_launch_modal_event(event, ctx);
         });
 
         let launch_config_save_modal = Self::build_launch_config_save_modal(ctx);
@@ -2782,7 +2782,7 @@ impl Workspace {
         });
 
         let native_modal = Self::build_native_modal_view(ctx);
-        // OpenWarp:删除 SharedObjectsCreationDeniedModal 注册(云端 Drive 配额拒绝弹窗)
+        // Zap:删除 SharedObjectsCreationDeniedModal 注册(云端 Drive 配额拒绝弹窗)
 
         ctx.subscribe_to_model(&AISettings::handle(ctx), |me, _, event, ctx| match event {
             AISettingsChangedEvent::IsAnyAIEnabled { .. }
@@ -2811,8 +2811,8 @@ impl Workspace {
                 // The model has already determined which window should show the modal.
                 let model_ref = model.as_ref(ctx);
                 if model_ref.target_window_id() == Some(ctx.window_id()) {
-                    if model_ref.is_openwarp_launch_modal_open() {
-                        me.focus_openwarp_launch_modal(ctx);
+                    if model_ref.is_zap_launch_modal_open() {
+                        me.focus_zap_launch_modal(ctx);
                     } else if model_ref.is_hoa_onboarding_open() {
                         me.show_hoa_onboarding_flow(ctx);
                     }
@@ -2932,7 +2932,7 @@ impl Workspace {
             #[cfg(target_family = "wasm")]
             transcript_details_panel,
             tab_fixed_width: None,
-            openwarp_launch_modal: openwarp_launch_view,
+            zap_launch_modal: zap_launch_view,
             codex_modal,
             lightbox_view: None,
             hoa_onboarding_flow: None,
@@ -3701,7 +3701,7 @@ impl Workspace {
     fn show_local_conversation_not_found_toast(&mut self, ctx: &mut ViewContext<Self>) {
         self.toast_stack.update(ctx, |view, ctx| {
             let new_toast = DismissibleToast::error(
-                "Conversation is not available in local OpenWarp history.".to_string(),
+                "Conversation is not available in local Zap history.".to_string(),
             );
             view.add_ephemeral_toast(new_toast, ctx);
         });
@@ -5639,7 +5639,7 @@ impl Workspace {
     ///
     /// 故意**不**打包的内容(权衡):
     /// - `.dmp` minidump 二进制(可能极大,需要单独按需上传);
-    /// - `openwarp.prompt_chips.log`(含命令 stdout/stderr,仅在 debug channel 生成,默认隐私风险);
+    /// - `zap.prompt_chips.log`(含命令 stdout/stderr,仅在 debug channel 生成,默认隐私风险);
     /// - profiling 产物(`dhat-heap.json` / `profile.pb`,仅特殊 cargo feature 启用)。
     #[cfg(not(target_family = "wasm"))]
     fn collect_log_bundle_extras(ctx: &AppContext) -> warp_logging::LogBundleExtras {
@@ -5664,7 +5664,7 @@ impl Workspace {
                 .unwrap_or_else(|| "<unknown>".to_string());
 
             format!(
-                "OpenWarp 日志导出\n\
+                "Zap 日志导出\n\
                  生成时间: {now}\n\
                  版本: {version}\n\
                  channel: {channel}\n\
@@ -6385,7 +6385,7 @@ impl Workspace {
     /// If the user is new and therefore has not seen the in app onboarding,
     /// triggers the welcome block to be shown after bootstrapping is completed.
     fn check_and_trigger_onboarding(&mut self, ctx: &mut ViewContext<Self>) -> bool {
-        // OpenWarp: 去掉首次打开的 agentic suggestions 欢迎块教程。仍把用户标记为
+        // Zap: 去掉首次打开的 agentic suggestions 欢迎块教程。仍把用户标记为
         // onboarded,避免下游(如 telemetry banner)把已用户当新用户处理。
         if !self.auth_state.is_onboarded().unwrap_or_default() {
             AuthManager::handle(ctx).update(ctx, |auth_manager, ctx| {
@@ -6452,7 +6452,7 @@ impl Workspace {
             ObjectType::Notebook => {
                 self.open_notebook(
                     &NotebookSource::Existing(sync_id),
-                    &OpenWarpDriveObjectSettings::default(),
+                    &ZapDriveObjectSettings::default(),
                     ctx,
                     true,
                 );
@@ -6460,7 +6460,7 @@ impl Workspace {
             ObjectType::Workflow => {
                 self.open_workflow_in_pane(
                     &WorkflowOpenSource::Existing(sync_id),
-                    &OpenWarpDriveObjectSettings::default(),
+                    &ZapDriveObjectSettings::default(),
                     WorkflowViewMode::View,
                     ctx,
                 );
@@ -6489,7 +6489,7 @@ impl Workspace {
     pub fn open_notebook(
         &mut self,
         source: &NotebookSource,
-        settings: &OpenWarpDriveObjectSettings,
+        settings: &ZapDriveObjectSettings,
         ctx: &mut ViewContext<Self>,
         default_to_new_pane: bool,
     ) {
@@ -6510,8 +6510,8 @@ impl Workspace {
                     &locator,
                 );
             }
-            // TODO(openwarp-cloud-removal Phase 5): invitee_email/source 这条
-            // notebook 邀请链路已无 UI 出口,但 `OpenWarpDriveObjectSettings.invitee_email`
+            // TODO(zap-cloud-removal Phase 5): invitee_email/source 这条
+            // notebook 邀请链路已无 UI 出口,但 `ZapDriveObjectSettings.invitee_email`
             // 仍由 URL handler / drag-drop 链路传入。Phase 5 退役 invitee 概念时
             // 把字段从 settings 结构里也删掉。
             let _ = settings;
@@ -6566,7 +6566,7 @@ impl Workspace {
     pub fn open_workflow_from_intent(
         &mut self,
         workflow_id: SyncId,
-        settings: &OpenWarpDriveObjectSettings,
+        settings: &ZapDriveObjectSettings,
         ctx: &mut ViewContext<Self>,
     ) {
         // If running workflows is supported, do so. Otherwise, or if the workflow isn't in memory,
@@ -6609,7 +6609,7 @@ impl Workspace {
     pub fn open_workflow_in_pane(
         &mut self,
         source: &WorkflowOpenSource,
-        settings: &OpenWarpDriveObjectSettings,
+        settings: &ZapDriveObjectSettings,
         mode: WorkflowViewMode,
         ctx: &mut ViewContext<Self>,
     ) {
@@ -7134,7 +7134,7 @@ impl Workspace {
         });
     }
 
-    // OpenWarp Wave 7-3:`open_environment_management_pane` 随 ambient-agent UI 子系统
+    // Zap Wave 7-3:`open_environment_management_pane` 随 ambient-agent UI 子系统
     // 物理删。
 
     pub(super) fn active_session_view(
@@ -7360,7 +7360,7 @@ impl Workspace {
             );
             self.tips_completed.update(ctx, |tips_completed, ctx| {
                 mark_feature_used_and_write_to_user_defaults(
-                    Tip::Action(TipAction::OpenWarpDrive),
+                    Tip::Action(TipAction::ZapDrive),
                     tips_completed,
                     ctx,
                 );
@@ -10316,7 +10316,7 @@ impl Workspace {
     pub fn add_tab_for_cloud_notebook(
         &mut self,
         notebook_id: SyncId,
-        settings: &OpenWarpDriveObjectSettings,
+        settings: &ZapDriveObjectSettings,
         ctx: &mut ViewContext<Self>,
     ) {
         // TODO: We should validate that this notebook exists and fallback if it doesn't
@@ -10334,7 +10334,7 @@ impl Workspace {
     fn add_tab_for_cloud_workflow(
         &mut self,
         workflow_id: SyncId,
-        settings: &OpenWarpDriveObjectSettings,
+        settings: &ZapDriveObjectSettings,
         ctx: &mut ViewContext<Self>,
     ) {
         let panes_layout = PanesLayout::Snapshot(Box::new(PaneNodeSnapshot::Leaf(LeafSnapshot {
@@ -11805,7 +11805,7 @@ impl Workspace {
             }
             CommandPaletteEvent::OpenNotebook { id } => self.open_notebook(
                 &NotebookSource::Existing(*id),
-                &OpenWarpDriveObjectSettings::default(),
+                &ZapDriveObjectSettings::default(),
                 ctx,
                 true,
             ),
@@ -11912,7 +11912,7 @@ impl Workspace {
     }
 
     fn handle_changelog_event(&mut self, _event: &ChangelogEvent, _ctx: &mut ViewContext<Self>) {
-        // OpenWarp 是本地化 fork,不依赖私有 changelog 服务,不在更新后弹出 toast/resource-center。
+        // Zap 是本地化 fork,不依赖私有 changelog 服务,不在更新后弹出 toast/resource-center。
     }
 
     fn manual_check_for_update(&self, ctx: &mut ViewContext<Self>) {
@@ -11967,10 +11967,10 @@ impl Workspace {
         ctx: &mut ViewContext<Self>,
     ) {
         match event {
-            // OpenWarp 去中心化分支:`CheckForUpdate` / `OpenWarpDrive` 事件 arm 随
+            // Zap 去中心化分支:`CheckForUpdate` / `ZapDrive` 事件 arm 随
             // `SettingsViewEvent` 中同名 variant 一同物理删。手动检查更新仍可
             // 由 `WorkspaceAction::CheckForUpdate`(`workspace:check_for_updates` binding)
-            // 触发;Warp Drive 仍可由 `WorkspaceAction::OpenWarpDrive` 触发。
+            // 触发;Warp Drive 仍可由 `WorkspaceAction::ZapDrive` 触发。
             SettingsViewEvent::Pane(_) | SettingsViewEvent::StartResize => {}
             SettingsViewEvent::ShowToast { message, flavor } => {
                 self.toast_stack.update(ctx, |toast_stack, ctx| {
@@ -12211,7 +12211,7 @@ impl Workspace {
             pane_group::Event::OpenCloudWorkflowForEdit(workflow_id) => self
                 .open_workflow_with_existing(
                     *workflow_id,
-                    &OpenWarpDriveObjectSettings::default(),
+                    &ZapDriveObjectSettings::default(),
                     ctx,
                 ),
             pane_group::Event::OpenWorkflowModalWithTemporary(workflow) => {
@@ -12273,7 +12273,7 @@ impl Workspace {
             } => {
                 self.move_to_drive_space(*object_type_and_id, *space, ctx);
             }
-            pane_group::Event::OpenWarpDriveLink {
+            pane_group::Event::ZapDriveLink {
                 open_warp_drive_args,
             } => {
                 let object_found = ObjectStoreModel::as_ref(ctx)
@@ -12843,7 +12843,7 @@ impl Workspace {
                 ctx.notify();
             }
             pane_group::Event::ClearHoveredTabIndex => self.hovered_tab_index = None,
-            pane_group::Event::OpenWarpDriveObjectInPane(uid) => {
+            pane_group::Event::ZapDriveObjectInPane(uid) => {
                 self.open_warp_drive_object_in_new_pane(uid, ctx);
             }
             pane_group::Event::OpenSuggestedAgentModeWorkflowModal { workflow_and_id } => {
@@ -13085,7 +13085,7 @@ impl Workspace {
                     ctx,
                 );
             }
-            // OpenWarp:终端里 Ctrl/Cmd+点击远端 SSH 文件路径,走 buffer-sync 协议打开。
+            // Zap:终端里 Ctrl/Cmd+点击远端 SSH 文件路径,走 buffer-sync 协议打开。
             #[cfg(all(feature = "local_tty", feature = "local_fs"))]
             pane_group::Event::OpenRemoteFileFromTerminal {
                 remote_path,
@@ -13104,7 +13104,7 @@ impl Workspace {
             pane_group::Event::OpenAgentProfileEditor { profile_id } => {
                 self.open_execution_profile_editor_pane(None, *profile_id, ctx);
             }
-            // OpenWarp Wave 7-3:`pane_group::Event::OpenEnvironmentManagementPane` handler 随
+            // Zap Wave 7-3:`pane_group::Event::OpenEnvironmentManagementPane` handler 随
             // ambient-agent UI 子系统物理删。
             pane_group::Event::LeftPanelToggled { is_open } => {
                 // Only handle visibility changes from the active pane group.
@@ -13571,7 +13571,7 @@ impl Workspace {
             DrivePanelEvent::OpenWorkflowModalWithWorkflowObject(workflow_id) => {
                 self.open_workflow_with_existing(
                     *workflow_id,
-                    &OpenWarpDriveObjectSettings::default(),
+                    &ZapDriveObjectSettings::default(),
                     ctx,
                 );
             }
@@ -13584,14 +13584,14 @@ impl Workspace {
                 );
             }
             DrivePanelEvent::OpenNotebook(source) => {
-                self.open_notebook(source, &OpenWarpDriveObjectSettings::default(), ctx, true)
+                self.open_notebook(source, &ZapDriveObjectSettings::default(), ctx, true)
             }
             DrivePanelEvent::OpenEnvVarCollection(source) => {
                 self.open_env_var_collection(source, false, ctx)
             }
             DrivePanelEvent::OpenWorkflowInPane(source, mode) => self.open_workflow_in_pane(
                 source,
-                &OpenWarpDriveObjectSettings::default(),
+                &ZapDriveObjectSettings::default(),
                 *mode,
                 ctx,
             ),
@@ -13618,7 +13618,7 @@ impl Workspace {
                 ctx.focus(&self.left_panel_view);
             }
             DrivePanelEvent::OpenSharedObjectsCreationDeniedModal(_, _) => {
-                // OpenWarp:云端 Drive 配额拒绝弹窗已删除,事件直接忽略
+                // Zap:云端 Drive 配额拒绝弹窗已删除,事件直接忽略
             }
             DrivePanelEvent::AttachPlanAsContext(id) => {
                 self.attach_plan_as_context(*id, ctx);
@@ -14012,7 +14012,7 @@ impl Workspace {
                     AcceptNotebook(sync_id) => {
                         self.open_notebook(
                             &NotebookSource::Existing(*sync_id),
-                            &OpenWarpDriveObjectSettings::default(),
+                            &ZapDriveObjectSettings::default(),
                             ctx,
                             true,
                         );
@@ -14024,7 +14024,7 @@ impl Workspace {
                             ctx,
                         );
                     }
-                    OpenWarpAI => {
+                    ZapAI => {
                         if !AISettings::as_ref(ctx).is_any_ai_enabled(ctx) {
                             return;
                         }
@@ -14342,7 +14342,7 @@ impl Workspace {
                 .server_id
                 .and_then(|id| ObjectStoreModel::as_ref(ctx).get_by_uid(&id.uid()))
             {
-                // TODO(openwarp-cloud-removal Phase 5): drive sharing onboarding
+                // TODO(zap-cloud-removal Phase 5): drive sharing onboarding
                 // block 已退;`created_object` 仍是 cloud_object 创建结果,
                 // StoredObject 模型本身在后续 phase 一并退役。
                 let _ = created_object;
@@ -14856,15 +14856,15 @@ impl Workspace {
         }
     }
 
-    fn handle_openwarp_launch_modal_event(
+    fn handle_zap_launch_modal_event(
         &mut self,
-        event: &OpenWarpLaunchModalEvent,
+        event: &ZapLaunchModalEvent,
         ctx: &mut ViewContext<Self>,
     ) {
         match event {
-            OpenWarpLaunchModalEvent::Close => {
+            ZapLaunchModalEvent::Close => {
                 OneTimeModalModel::handle(ctx).update(ctx, |model, ctx| {
-                    model.mark_openwarp_launch_modal_dismissed(ctx);
+                    model.mark_zap_launch_modal_dismissed(ctx);
                 });
                 self.focus_active_tab(ctx);
                 ctx.notify();
@@ -15190,7 +15190,7 @@ impl Workspace {
         ctx.notify();
     }
 
-    // OpenWarp:删除 open_shared_objects_creation_denied_modal(云端 Drive 配额拒绝弹窗)
+    // Zap:删除 open_shared_objects_creation_denied_modal(云端 Drive 配额拒绝弹窗)
 
     /// Opens the workflow modal in the provided space and folder with no existing content (i.e. a new workflow modal).
     fn open_workflow_modal(
@@ -15208,7 +15208,7 @@ impl Workspace {
         let owner = match space {
             Space::Team { team_uid } => {
                 if !UserWorkspaces::has_capacity_for_shared_workflows(team_uid, ctx, 1) {
-                    // OpenWarp:云端配额拒绝弹窗已删除,直接 return
+                    // Zap:云端配额拒绝弹窗已删除,直接 return
                     return;
                 }
 
@@ -15239,7 +15239,7 @@ impl Workspace {
     fn open_workflow_with_existing(
         &mut self,
         workflow_id: SyncId,
-        settings: &OpenWarpDriveObjectSettings,
+        settings: &ZapDriveObjectSettings,
         ctx: &mut ViewContext<Self>,
     ) {
         let source = WorkflowOpenSource::Existing(workflow_id);
@@ -15259,7 +15259,7 @@ impl Workspace {
         };
         self.open_workflow_in_pane(
             &source,
-            &OpenWarpDriveObjectSettings::default(),
+            &ZapDriveObjectSettings::default(),
             WorkflowViewMode::Create,
             ctx,
         );
@@ -15280,7 +15280,7 @@ impl Workspace {
         };
         self.open_workflow_in_pane(
             &source,
-            &OpenWarpDriveObjectSettings::default(),
+            &ZapDriveObjectSettings::default(),
             WorkflowViewMode::Create,
             ctx,
         );
@@ -18192,8 +18192,8 @@ impl Workspace {
         self.tab_views().map(|tab| tab.id())
     }
 
-    fn focus_openwarp_launch_modal(&mut self, ctx: &mut ViewContext<Self>) {
-        ctx.focus(&self.openwarp_launch_modal);
+    fn focus_zap_launch_modal(&mut self, ctx: &mut ViewContext<Self>) {
+        ctx.focus(&self.zap_launch_modal);
     }
 
     fn open_left_panel_view(&mut self, action: &LeftPanelAction, ctx: &mut ViewContext<Self>) {
@@ -18292,7 +18292,7 @@ impl Workspace {
             // Many users' browser settings will block Local Network Access so this will end up redirecting to download page,
             // even if they have the app installed.
             let toast_message = format!(
-                "Have OpenWarp installed but redirecting to download page?\nEnable Local Network Access for the OpenWarp web launcher in your browser."
+                "Have Zap installed but redirecting to download page?\nEnable Local Network Access for the Zap web launcher in your browser."
             );
             self.toast_stack.update(ctx, |toast_stack, ctx| {
                 toast_stack.add_persistent_toast(DismissibleToast::default(toast_message), ctx)
@@ -18722,7 +18722,7 @@ impl TypedActionView for Workspace {
                             owner: personal_drive,
                             initial_folder_id: None,
                         },
-                        &OpenWarpDriveObjectSettings::default(),
+                        &ZapDriveObjectSettings::default(),
                         ctx,
                         true,
                     );
@@ -18752,7 +18752,7 @@ impl TypedActionView for Workspace {
                     };
                     self.open_workflow_in_pane(
                         &source,
-                        &OpenWarpDriveObjectSettings::default(),
+                        &ZapDriveObjectSettings::default(),
                         WorkflowViewMode::Create,
                         ctx,
                     );
@@ -18778,7 +18778,7 @@ impl TypedActionView for Workspace {
                 self.finish_tab_rename(ctx);
                 self.current_workspace_state.is_tab_being_dragged = true;
             }
-            OpenWarpDrive => {
+            ZapDrive => {
                 if WarpDriveSettings::is_warp_drive_enabled(ctx) {
                     self.open_left_panel_view(&LeftPanelAction::WarpDrive, ctx);
                 }
@@ -19256,7 +19256,7 @@ impl TypedActionView for Workspace {
                 });
                 self.open_workflow_with_existing(
                     *workflow_id,
-                    &OpenWarpDriveObjectSettings::default(),
+                    &ZapDriveObjectSettings::default(),
                     ctx,
                 );
             }
@@ -19400,7 +19400,7 @@ impl TypedActionView for Workspace {
                     ctx
                 );
             }
-            // OpenWarp Wave 7-3:`OpenEnvironmentManagementPane` WorkspaceAction handler 随
+            // Zap Wave 7-3:`OpenEnvironmentManagementPane` WorkspaceAction handler 随
             // ambient-agent UI 子系统物理删。
             ToggleAIDocumentPane {
                 document_id,
@@ -19538,7 +19538,7 @@ impl TypedActionView for Workspace {
             }
             OpenNotebook { id } => self.open_notebook(
                 &NotebookSource::Existing(*id),
-                &OpenWarpDriveObjectSettings::default(),
+                &ZapDriveObjectSettings::default(),
                 ctx,
                 true,
             ),
@@ -19688,7 +19688,7 @@ impl TypedActionView for Workspace {
                     };
                     self.open_workflow_in_pane(
                         &source,
-                        &OpenWarpDriveObjectSettings::default(),
+                        &ZapDriveObjectSettings::default(),
                         WorkflowViewMode::Create,
                         ctx,
                     );
@@ -19718,35 +19718,35 @@ impl TypedActionView for Workspace {
                 log::info!("AWS Bedrock login banner dismissed state has been reset");
             }
             #[cfg(debug_assertions)]
-            OpenOpenWarpLaunchModal => {
-                // Force open the OpenWarp launch modal for debugging
+            OpenZapLaunchModal => {
+                // Force open the Zap launch modal for debugging
                 OneTimeModalModel::handle(ctx).update(ctx, |model, ctx| {
-                    model.force_open_openwarp_launch_modal(ctx);
+                    model.force_open_zap_launch_modal(ctx);
                 });
                 ctx.notify();
             }
             #[cfg(debug_assertions)]
-            ResetOpenWarpLaunchModalState => {
-                // Reset the OpenWarp launch modal dismissed state for debugging
+            ResetZapLaunchModalState => {
+                // Reset the Zap launch modal dismissed state for debugging
                 let old_value = *GeneralSettings::as_ref(ctx)
-                    .did_check_to_trigger_openwarp_launch_modal
+                    .did_check_to_trigger_zap_launch_modal
                     .value();
                 GeneralSettings::handle(ctx).update(ctx, |settings, ctx| {
                     if let Err(e) = settings
-                        .did_check_to_trigger_openwarp_launch_modal
+                        .did_check_to_trigger_zap_launch_modal
                         .set_value(false, ctx)
                     {
-                        log::warn!("Failed to reset OpenWarp launch modal dismissed setting: {e}");
+                        log::warn!("Failed to reset Zap launch modal dismissed setting: {e}");
                     }
                 });
                 let new_value = *GeneralSettings::as_ref(ctx)
-                    .did_check_to_trigger_openwarp_launch_modal
+                    .did_check_to_trigger_zap_launch_modal
                     .value();
                 log::info!(
-                    "OpenWarp launch modal state: old={}, new={}, feature_flag_enabled={}",
+                    "Zap launch modal state: old={}, new={}, feature_flag_enabled={}",
                     old_value,
                     new_value,
-                    FeatureFlag::OpenWarpLaunchModal.is_enabled()
+                    FeatureFlag::ZapLaunchModal.is_enabled()
                 );
             }
             #[cfg(debug_assertions)]
@@ -20868,8 +20868,8 @@ impl View for Workspace {
         let one_time_modal_model = OneTimeModalModel::as_ref(app);
         let should_show_modal = one_time_modal_model.target_window_id() == Some(self.window_id);
 
-        if should_show_modal && one_time_modal_model.is_openwarp_launch_modal_open() {
-            stack.add_child(ChildView::new(&self.openwarp_launch_modal).finish());
+        if should_show_modal && one_time_modal_model.is_zap_launch_modal_open() {
+            stack.add_child(ChildView::new(&self.zap_launch_modal).finish());
         }
 
         if let Some(hoa_flow) = &self.hoa_onboarding_flow {

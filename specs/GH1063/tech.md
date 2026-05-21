@@ -143,7 +143,7 @@ Behavior-to-verification mapping (from `product.md`):
 - Behavior #11: no automated accessibility test exists for these labels; manual
   verification on macOS VoiceOver is sufficient since the visible text is the
   accessible label.
-- Behavior #12: toggle the `OpenWarpNewSettingsModes` feature flag and confirm
+- Behavior #12: toggle the `ZapNewSettingsModes` feature flag and confirm
   the disable row only appears when enabled and always reads "Disable Warp
   Agent" when it does appear.
 

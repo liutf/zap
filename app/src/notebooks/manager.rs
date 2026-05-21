@@ -13,7 +13,7 @@ use crate::{
         model::persistence::{ObjectStoreEvent, ObjectStoreModel},
         Owner,
     },
-    drive::OpenWarpDriveObjectSettings,
+    drive::ZapDriveObjectSettings,
     pane_group::{NotebookPane, PaneContent},
     safe_debug, safe_warn,
     server::ids::SyncId,
@@ -179,7 +179,7 @@ impl NotebookManager {
     pub fn create_pane(
         &mut self,
         source: &NotebookSource,
-        settings: &OpenWarpDriveObjectSettings,
+        settings: &ZapDriveObjectSettings,
         window_id: WindowId,
         ctx: &mut ModelContext<Self>,
     ) -> NotebookPane {

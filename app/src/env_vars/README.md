@@ -10,13 +10,13 @@ The core data model for EVCs is defined in `mod.rs`. The motivations behind our 
 
 ## Local Object Store Compatibility
 
-Context: EVCs are built on GenericStringObjects (GSOs). In OpenWarp, that means the object is stored in the local object store and persisted through SQLite. The historical `JsonObjectType::EnvVarCollection` discriminator is still used for backwards-compatible deserialization.
+Context: EVCs are built on GenericStringObjects (GSOs). In Zap, that means the object is stored in the local object store and persisted through SQLite. The historical `JsonObjectType::EnvVarCollection` discriminator is still used for backwards-compatible deserialization.
 
 The `EnvVarCollectionObject` implementation in `mod.rs` specifies local object-store behavior such as rendering in Warp Drive and supporting export.
 
 The implementation of EVCs as a Warp Drive object is in `app/src/drive/items/env_var_collection.rs`, where code for the Warp Drive preview and click action is located.
 
-Edit-collision and liveness behavior now lives in the local object-store/update-manager path. Legacy cloud/server file names in older docs should be read as historical context, not as active OpenWarp network behavior.
+Edit-collision and liveness behavior now lives in the local object-store/update-manager path. Legacy cloud/server file names in older docs should be read as historical context, not as active Zap network behavior.
 
 ## Client Side
 

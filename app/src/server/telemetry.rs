@@ -1,4 +1,4 @@
-// OpenWarp:telemetry 发送层与 context provider 已删除。
+// Zap:telemetry 发送层与 context provider 已删除。
 // 这里仅保留 `TelemetryEvent` 枚举及其辅助类型,作为大量 UI/模型调用点的类型壳。
 
 use std::collections::HashSet;
@@ -196,7 +196,7 @@ impl From<Space> for TelemetrySpace {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ObjectTelemetryMetadata {
     pub object_type: TelemetryObjectType,
-    /// Legacy server UID slot. OpenWarp keeps it optional while object-event call sites are being
+    /// Legacy server UID slot. Zap keeps it optional while object-event call sites are being
     /// localized.
     pub object_uid: Option<ServerId>,
     /// The space through which the user has access to the object.
@@ -356,7 +356,7 @@ impl From<rmcp::RmcpError> for MCPServerTelemetryError {
     }
 }
 
-// OpenWarp Phase 2a: `OpenedSharingDialogEvent` + `SharingDialogSource` and
+// Zap Phase 2a: `OpenedSharingDialogEvent` + `SharingDialogSource` and
 // the corresponding `OpenedSharingDialog` `TelemetryEvent` variant removed
 // along with the sharing dialog UI.
 
@@ -525,7 +525,7 @@ pub enum CommandCorrectionEvent {
 pub enum CommandSearchResultType {
     History,
     Workflow,
-    OpenWarpAI,
+    ZapAI,
     TranslateUsingWarpAI,
     Notebook,
     EnvVarCollection,
@@ -542,7 +542,7 @@ impl From<&CommandSearchItemAction> for CommandSearchResultType {
             AcceptWorkflow(_) => Self::Workflow,
             AcceptNotebook(_) => Self::Notebook,
             AcceptEnvVarCollection(_) => Self::EnvVarCollection,
-            OpenWarpAI => Self::OpenWarpAI,
+            ZapAI => Self::ZapAI,
             TranslateUsingWarpAI => Self::TranslateUsingWarpAI,
             AcceptAIQuery(_) | RunAIQuery(_) => Self::AIQuery,
         }
@@ -1824,7 +1824,7 @@ pub enum TelemetryEvent {
         does_actual_command_match_history_prediction: bool,
         history_prediction_likelihood: f64,
         total_history_count: usize,
-        // OpenWarp leaves these optional; no telemetry sender consumes them.
+        // Zap leaves these optional; no telemetry sender consumes them.
         actual_next_command_run: Option<String>,
         history_based_autosuggestion_state: Option<HistoryBasedAutosuggestionState>,
         generate_ai_input_suggestions_request: Option<GenerateAIInputSuggestionsRequest>,
@@ -1838,7 +1838,7 @@ pub enum TelemetryEvent {
         block_id: Option<String>,
         view: PromptSuggestionViewType,
         /// Legacy request token from the `/passive-suggestion` request that generated this
-        /// suggestion. OpenWarp keeps it optional for local diagnostics only.
+        /// suggestion. Zap keeps it optional for local diagnostics only.
         server_request_token: Option<String>,
     },
 
@@ -1851,7 +1851,7 @@ pub enum TelemetryEvent {
         code_exchange_id: Option<AIAgentExchangeId>,
         block_id: Option<String>,
         request_duration_ms: u64,
-        /// Legacy request token from the `/passive-suggestion` request. OpenWarp keeps it optional
+        /// Legacy request token from the `/passive-suggestion` request. Zap keeps it optional
         /// for local diagnostics only.
         server_request_token: Option<String>,
     },
@@ -1874,7 +1874,7 @@ pub enum TelemetryEvent {
         id: String,
         block_id: String,
         static_prompt_suggestion_name: String,
-        // OpenWarp leaves these optional; no telemetry sender consumes them.
+        // Zap leaves these optional; no telemetry sender consumes them.
         query: Option<String>,
         block_command: Option<String>,
         request_duration_ms: u64,

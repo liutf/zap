@@ -19,7 +19,7 @@ use crate::{
     workspaces::{user_profiles::UserProfiles, user_workspaces::UserWorkspaces},
 };
 
-// OpenWarp Phase 2a: `dialog/` (cloud sharing modal UI) deleted along with
+// Zap Phase 2a: `dialog/` (cloud sharing modal UI) deleted along with
 // all consumer triggers. `style.rs` is retained because the Subject /
 // UserKind avatar helpers in this module still depend on it.
 mod style;

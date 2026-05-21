@@ -675,7 +675,7 @@ impl EnvVarCollectionView {
             title
         };
         self.set_pane_title(&title, ctx);
-        // TODO(openwarp-cloud-removal Phase 5): sharing UI 已退役,
+        // TODO(zap-cloud-removal Phase 5): sharing UI 已退役,
         // env_var_collection 的 ShareableObject 注入移除;ServerId 路径保留待
         // cloud_object 整体退役。
         let _ = env_var_collection.id;

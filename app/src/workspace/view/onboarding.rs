@@ -144,7 +144,7 @@ impl Workspace {
         ctx: &mut ViewContext<Self>,
     ) {
         // Warp 智能体固定开启；这里保留运行时守卫,避免未来平台策略改变时误启动引导。
-        if FeatureFlag::OpenWarpNewSettingsModes.is_enabled()
+        if FeatureFlag::ZapNewSettingsModes.is_enabled()
             && !AISettings::as_ref(ctx).is_any_ai_enabled(ctx)
         {
             return;

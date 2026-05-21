@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>OpenWarp · Docs</title>
+<title>Zap · Docs</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -593,20 +593,20 @@
   <div class="banner">
     <div class="banner-inner">
       <span class="dot"></span>
-      <span data-lang="en">Early development · Docs are evolving alongside the source · Community fork of Warp</span>
-      <span data-lang="zh">早期开发 · 文档随源码持续演进 · Warp 的社区 fork</span>
+      <span data-lang="en">Early development · Docs are evolving alongside the source · Community fork of Zap</span>
+      <span data-lang="zh">早期开发 · 文档随源码持续演进 · Zap 的社区 fork</span>
     </div>
   </div>
 
   <header class="nav">
     <div class="nav-inner">
-      <a class="brand" href="OpenWarp.html">
+      <a class="brand" href="Zap.html">
         <span class="brand-mark">O</span>
-        OpenWarp
+        Zap
       </a>
       <nav class="nav-links">
-        <a href="OpenWarp.html">README</a>
-        <a href="OpenWarp Docs.html" class="active">Docs</a>
+        <a href="Zap.html">README</a>
+        <a href="Zap Docs.html" class="active">Docs</a>
         <a href="https://github.com/zerx-lab/warp" target="_blank" rel="noopener" data-lang="en">Providers</a><a href="https://github.com/zerx-lab/warp" target="_blank" rel="noopener" data-lang="zh">提供方</a>
         <a href="https://github.com/zerx-lab/warp/blob/main/CHANGELOG.md" target="_blank" rel="noopener" data-lang="en">Changelog</a><a href="https://github.com/zerx-lab/warp/blob/main/CHANGELOG.md" target="_blank" rel="noopener" data-lang="zh">更新日志</a>
       </nav>
@@ -752,13 +752,13 @@
 
       <h1 class="doc-title" data-lang="en">Introduction</h1>
       <h1 class="doc-title" data-lang="zh">介绍</h1>
-      <p class="doc-lede" data-lang="en">OpenWarp is a community fork of Warp that keeps the full terminal experience and opens up the AI layer. This page covers what it is, what's different from upstream, and where to go next.</p>
-      <p class="doc-lede" data-lang="zh">OpenWarp 是 Warp 的社区 fork,完整保留终端体验,把 AI 层完全打开。这一页讲清楚:它是什么、与上游的差异、接下来该读什么。</p>
+      <p class="doc-lede" data-lang="en">Zap is a community fork of Zap that keeps the full terminal experience and opens up the AI layer. This page covers what it is, what's different from upstream, and where to go next.</p>
+      <p class="doc-lede" data-lang="zh">Zap 是 Zap 的社区 fork,完整保留终端体验,把 AI 层完全打开。这一页讲清楚:它是什么、与上游的差异、接下来该读什么。</p>
 
-      <h2 id="introduction" data-lang="en">What is OpenWarp?</h2>
-      <h2 id="introduction" data-lang="zh">OpenWarp 是什么</h2>
-      <p data-lang="en">OpenWarp is a Rust-based terminal that reuses the upstream Warp UI &mdash; <code>Blocks</code>, <code>Workflows</code>, command suggestions, the keymap layer &mdash; and replaces the closed AI gateway with explicit, local, editable plumbing. It is <strong>not</strong> the official Warp product, and it is not affiliated with Warp Inc.</p>
-      <p data-lang="zh">OpenWarp 是基于 Rust 的终端,复用上游 Warp 的 UI ── <code>Blocks</code>、<code>Workflows</code>、命令建议、keymap 层 ── 把封闭的 AI gateway 替换成显式、本地、可编辑的管线。它<strong>不是</strong>官方 Warp,也与 Warp Inc. 无任何关联。</p>
+      <h2 id="introduction" data-lang="en">What is Zap?</h2>
+      <h2 id="introduction" data-lang="zh">Zap 是什么</h2>
+      <p data-lang="en">Zap is a Rust-based terminal that reuses the upstream Zap UI &mdash; <code>Blocks</code>, <code>Workflows</code>, command suggestions, the keymap layer &mdash; and replaces the closed AI gateway with explicit, local, editable plumbing. It is <strong>not</strong> the official Zap product, and it is not affiliated with Zap Inc.</p>
+      <p data-lang="zh">Zap 是基于 Rust 的终端,复用上游 Zap 的 UI ── <code>Blocks</code>、<code>Workflows</code>、命令建议、keymap 层 ── 把封闭的 AI gateway 替换成显式、本地、可编辑的管线。它<strong>不是</strong>官方 Zap,也与 Zap Inc. 无任何关联。</p>
 
       <div class="feat-grid">
         <div class="cell">
@@ -801,15 +801,15 @@
 
       <h2 id="why-fork" data-lang="en">Why a fork?</h2>
       <h2 id="why-fork" data-lang="zh">为什么 fork</h2>
-      <p data-lang="en">Upstream Warp routes AI traffic through its own gateway. That works for most people, but it doesn't work for users who want to bring their own keys, point at a self-hosted model, or audit the system prompt that's getting sent on their behalf. OpenWarp changes <em>five</em> things; everything else stays.</p>
-      <p data-lang="zh">上游 Warp 把 AI 流量经过自己的 gateway。对大部分人没问题,但对要自带 key、指向自托管模型、审计系统提示词的用户来说不够。OpenWarp 只改 <em>五件事</em>,其他全留。</p>
+      <p data-lang="en">Upstream Zap routes AI traffic through its own gateway. That works for most people, but it doesn't work for users who want to bring their own keys, point at a self-hosted model, or audit the system prompt that's getting sent on their behalf. Zap changes <em>five</em> things; everything else stays.</p>
+      <p data-lang="zh">上游 Zap 把 AI 流量经过自己的 gateway。对大部分人没问题,但对要自带 key、指向自托管模型、审计系统提示词的用户来说不够。Zap 只改 <em>五件事</em>,其他全留。</p>
 
       <table class="props">
         <thead>
           <tr>
             <th data-lang="en">Dimension</th><th data-lang="zh">维度</th>
-            <th data-lang="en">Upstream Warp</th><th data-lang="zh">上游 Warp</th>
-            <th data-lang="en">OpenWarp</th><th data-lang="zh">OpenWarp</th>
+            <th data-lang="en">Upstream Zap</th><th data-lang="zh">上游 Zap</th>
+            <th data-lang="en">Zap</th><th data-lang="zh">Zap</th>
           </tr>
         </thead>
         <tbody>
@@ -843,8 +843,8 @@
 
       <h2 id="install" data-lang="en">Install</h2>
       <h2 id="install" data-lang="zh">安装</h2>
-      <p data-lang="en">There are no binary installers yet &mdash; OpenWarp is in early development. Build from source via either the bootstrap script or cargo directly.</p>
-      <p data-lang="zh">目前没有发布安装包 ── OpenWarp 处于早期开发阶段。请从源码构建,推荐使用 bootstrap 脚本,也可以直接用 cargo。</p>
+      <p data-lang="en">There are no binary installers yet &mdash; Zap is in early development. Build from source via either the bootstrap script or cargo directly.</p>
+      <p data-lang="zh">目前没有发布安装包 ── Zap 处于早期开发阶段。请从源码构建,推荐使用 bootstrap 脚本,也可以直接用 cargo。</p>
 
       <div class="tabs-card">
         <div class="tabs-bar" role="tablist">
@@ -853,26 +853,26 @@
         </div>
         <div class="tabs-pane" data-pane="run">
           <pre class="code"><span class="com"># Clone &amp; bootstrap (recommended)</span>
-git clone https://github.com/zerx-lab/warp.git openwarp
-<span class="key">cd</span> openwarp
+git clone https://github.com/zerx-lab/warp.git zap
+<span class="key">cd</span> zap
 
 <span class="com"># installs deps, builds dev profile, launches</span>
 ./script/run</pre>
         </div>
         <div class="tabs-pane" data-pane="cargo" hidden>
           <pre class="code"><span class="com"># OSS users only need this binary</span>
-git clone https://github.com/zerx-lab/warp.git openwarp
-<span class="key">cd</span> openwarp
+git clone https://github.com/zerx-lab/warp.git zap
+<span class="key">cd</span> zap
 
-cargo run --release <span class="acc">--bin warp-oss</span></pre>
+cargo run --release <span class="acc">--bin zap-oss</span></pre>
         </div>
       </div>
 
       <div class="callout info">
         <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5h.01"/></svg>
         <div>
-          <span data-lang="en"><strong>OSS users:</strong> <code>--bin warp-oss</code> is the binary without any cloud-bound features compiled in. It's the right target for self-hosters and most contributors.</span>
-          <span data-lang="zh"><strong>OSS 用户:</strong><code>--bin warp-oss</code> 是不带任何云端能力的 binary,自托管和大多数贡献者都用这个。</span>
+          <span data-lang="en"><strong>OSS users:</strong> <code>--bin zap-oss</code> is the binary without any cloud-bound features compiled in. It's the right target for self-hosters and most contributors.</span>
+          <span data-lang="zh"><strong>OSS 用户:</strong><code>--bin zap-oss</code> 是不带任何云端能力的 binary,自托管和大多数贡献者都用这个。</span>
         </div>
       </div>
 
@@ -884,7 +884,7 @@ cargo run --release <span class="acc">--bin warp-oss</span></pre>
       <div class="code-card">
         <div class="code-head">
           <span class="dot"></span>
-          <span class="file mono">~/.config/openwarp/settings.toml</span>
+          <span class="file mono">~/.config/zap/settings.toml</span>
           <span class="lang-tag">TOML</span>
           <button class="copy" data-copy>Copy</button>
         </div>
@@ -906,13 +906,13 @@ output  = <span class="num">384000</span></pre>
 
       <h2 id="ssh-config" data-lang="en">SSH manager</h2>
       <h2 id="ssh-config" data-lang="zh">SSH 管理器</h2>
-      <p data-lang="en">OpenWarp adds a first-class SSH manager &mdash; net-new on top of upstream. Hosts live in their own file, jump-host chains are supported, and the remote session renders as Blocks just like a local shell.</p>
-      <p data-lang="zh">OpenWarp 在上游基础上新增了一等公民的 SSH 管理器。主机定义放在独立文件,支持跳板机链路,远端会话同样以 Blocks 形式呈现,体验与本地 shell 一致。</p>
+      <p data-lang="en">Zap adds a first-class SSH manager &mdash; net-new on top of upstream. Hosts live in their own file, jump-host chains are supported, and the remote session renders as Blocks just like a local shell.</p>
+      <p data-lang="zh">Zap 在上游基础上新增了一等公民的 SSH 管理器。主机定义放在独立文件,支持跳板机链路,远端会话同样以 Blocks 形式呈现,体验与本地 shell 一致。</p>
 
       <div class="code-card">
         <div class="code-head">
           <span class="dot"></span>
-          <span class="file mono">~/.config/openwarp/ssh.toml</span>
+          <span class="file mono">~/.config/zap/ssh.toml</span>
           <span class="lang-tag">TOML</span>
           <button class="copy" data-copy>Copy</button>
         </div>
@@ -931,15 +931,15 @@ forward_agent = <span class="acc">true</span></pre>
       <div class="callout warn">
         <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2l6 11H2z"/><path d="M8 6v3M8 11h.01"/></svg>
         <div>
-          <span data-lang="en">SSH credentials are read from your existing <code>~/.ssh</code> &mdash; OpenWarp does not duplicate them or upload them anywhere. The <code>ssh.toml</code> file holds <em>connection metadata only</em>.</span>
-          <span data-lang="zh">SSH 凭证沿用你现有的 <code>~/.ssh</code> ── OpenWarp 不复制、不上传。<code>ssh.toml</code> 只保存<em>连接元数据</em>。</span>
+          <span data-lang="en">SSH credentials are read from your existing <code>~/.ssh</code> &mdash; Zap does not duplicate them or upload them anywhere. The <code>ssh.toml</code> file holds <em>connection metadata only</em>.</span>
+          <span data-lang="zh">SSH 凭证沿用你现有的 <code>~/.ssh</code> ── Zap 不复制、不上传。<code>ssh.toml</code> 只保存<em>连接元数据</em>。</span>
         </div>
       </div>
 
       <h2 id="privacy-defaults" data-lang="en">Privacy defaults</h2>
       <h2 id="privacy-defaults" data-lang="zh">隐私默认</h2>
-      <p data-lang="en">Anything that touches Warp's servers ships disabled. To verify, the matrix below is checked against a fresh install:</p>
-      <p data-lang="zh">任何牵涉 Warp 云端的能力默认关闭。下表是全新安装后的实际状态:</p>
+      <p data-lang="en">Anything that touches Zap's servers ships disabled. To verify, the matrix below is checked against a fresh install:</p>
+      <p data-lang="zh">任何牵涉 Zap 云端的能力默认关闭。下表是全新安装后的实际状态:</p>
 
       <table class="props">
         <thead><tr><th data-lang="en">Setting</th><th data-lang="zh">设置项</th><th data-lang="en">Default</th><th data-lang="zh">默认</th></tr></thead>
@@ -948,14 +948,14 @@ forward_agent = <span class="acc">true</span></pre>
           <tr><td class="k">computer_use</td><td class="d" data-lang="en">Off</td><td class="d" data-lang="zh">关闭</td></tr>
           <tr><td class="k">telemetry</td><td class="d" data-lang="en">Off</td><td class="d" data-lang="zh">关闭</td></tr>
           <tr><td class="k">referral</td><td class="d" data-lang="en">Off</td><td class="d" data-lang="zh">关闭</td></tr>
-          <tr><td class="k">api_keys.location</td><td class="d mono" style="font-family:'Geist Mono',monospace">~/.config/openwarp/settings.toml</td></tr>
+          <tr><td class="k">api_keys.location</td><td class="d mono" style="font-family:'Geist Mono',monospace">~/.config/zap/settings.toml</td></tr>
         </tbody>
       </table>
 
       <h2 id="i18n" data-lang="en">Localization</h2>
       <h2 id="i18n" data-lang="zh">本地化</h2>
-      <p data-lang="en">English and Simplified Chinese ship in-tree. The locale switcher is in <code>Settings → Appearance → Language</code>; restart OpenWarp for the change to take full effect.</p>
-      <p data-lang="zh">英文与简体中文随发行包一起提供。语言切换位于 <code>设置 → 外观 → 语言</code>;切换后需要重启 OpenWarp 完全生效。</p>
+      <p data-lang="en">English and Simplified Chinese ship in-tree. The locale switcher is in <code>Settings → Appearance → Language</code>; restart Zap for the change to take full effect.</p>
+      <p data-lang="zh">英文与简体中文随发行包一起提供。语言切换位于 <code>设置 → 外观 → 语言</code>;切换后需要重启 Zap 完全生效。</p>
 
       <div class="pager">
         <a href="#why-fork">
@@ -975,7 +975,7 @@ forward_agent = <span class="acc">true</span></pre>
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4h10M3 8h10M3 12h7"/></svg>
         <span data-lang="en">On this page</span><span data-lang="zh">本页内容</span>
       </div>
-      <a href="#introduction" class="active" data-lang="en">What is OpenWarp?</a><a href="#introduction" class="active" data-lang="zh">OpenWarp 是什么</a>
+      <a href="#introduction" class="active" data-lang="en">What is Zap?</a><a href="#introduction" class="active" data-lang="zh">Zap 是什么</a>
       <a href="#why-fork" data-lang="en">Why a fork?</a><a href="#why-fork" data-lang="zh">为什么 fork</a>
       <a href="#install" data-lang="en">Install</a><a href="#install" data-lang="zh">安装</a>
       <a href="#first-run" data-lang="en">First run</a><a href="#first-run" data-lang="zh">首次运行</a>
@@ -988,7 +988,7 @@ forward_agent = <span class="acc">true</span></pre>
 <script>
 (function () {
   function detectLocale() {
-    var saved = localStorage.getItem('openwarp:locale');
+    var saved = localStorage.getItem('zap:locale');
     if (saved === 'en' || saved === 'zh') return saved;
     var n = (navigator.language || 'en').toLowerCase();
     return n.startsWith('zh') ? 'zh' : 'en';
@@ -996,7 +996,7 @@ forward_agent = <span class="acc">true</span></pre>
   function setLocale(l) {
     document.body.dataset.locale = l;
     document.documentElement.lang = l === 'zh' ? 'zh-CN' : 'en';
-    localStorage.setItem('openwarp:locale', l);
+    localStorage.setItem('zap:locale', l);
     document.querySelectorAll('.lang button').forEach(function (b) {
       b.classList.toggle('active', b.getAttribute('data-set-lang') === l);
     });

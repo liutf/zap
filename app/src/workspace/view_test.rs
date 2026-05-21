@@ -65,7 +65,7 @@ use crate::workflows::local_workflows::LocalWorkflows;
 use crate::ObjectActions;
 use crate::{experiments, workspace, GlobalResourceHandlesProvider};
 
-// OpenWarp(本地化,Phase 5):`PreferencesSyncer` 已物理删除。
+// Zap(本地化,Phase 5):`PreferencesSyncer` 已物理删除。
 
 use crate::terminal::shared_session::protocol::SessionId;
 use ai::project_context::model::ProjectContextModel;
@@ -110,7 +110,7 @@ fn initialize_app(app: &mut App) {
     app.add_singleton_model(NotebookKeybindings::new);
     app.add_singleton_model(TerminalKeybindings::new);
     app.add_singleton_model(NotebookManager::mock);
-    // OpenWarp(本地化,Phase 5):`PreferencesSyncer` 已物理删除,test singleton 不再需要。
+    // Zap(本地化,Phase 5):`PreferencesSyncer` 已物理删除,test singleton 不再需要。
     app.add_singleton_model(|_| BlocklistAIHistoryModel::new_for_test());
     app.add_singleton_model(|_| CLIAgentSessionsModel::new());
     app.add_singleton_model(AgentConversationsModel::new);
@@ -130,7 +130,7 @@ fn initialize_app(app: &mut App) {
     app.add_singleton_model(|ctx| {
         AIExecutionProfilesModel::new(&crate::LaunchMode::new_for_unit_test(), ctx)
     });
-    // OpenWarp:RepoOutlines 已删除,不再注册。
+    // Zap:RepoOutlines 已删除,不再注册。
     #[cfg(feature = "voice_input")]
     app.add_singleton_model(voice_input::VoiceInput::new);
     app.add_singleton_model(BlocklistAIPermissions::new);
@@ -1147,7 +1147,7 @@ fn test_notebook_pane_tracking() {
                     owner: Owner::mock_current_user(),
                     initial_folder_id: None,
                 },
-                &OpenWarpDriveObjectSettings::default(),
+                &ZapDriveObjectSettings::default(),
                 ctx,
                 true,
             );
@@ -1187,7 +1187,7 @@ fn test_notebook_pane_tracking() {
             // Re-opening the notebook should not create a new view.
             workspace.open_notebook(
                 &NotebookSource::Existing(notebook_id),
-                &OpenWarpDriveObjectSettings::default(),
+                &ZapDriveObjectSettings::default(),
                 ctx,
                 true,
             );
@@ -1304,7 +1304,7 @@ fn test_open_or_toggle_warp_drive() {
 
         let workspace = mock_workspace(&mut app);
         workspace.update(&mut app, |workspace, ctx| {
-            // First, unconditionally open Warp Drive as a system action. WD should be open and welcome tips should not have opening warp drive.
+            // First, unconditionally open Zap drive as a system action. WD should be open and welcome tips should not have opening zap drive.
             workspace.open_or_toggle_warp_drive(
                 false, /* toggle */
                 false, /* explicit_user_action */
@@ -1319,7 +1319,7 @@ fn test_open_or_toggle_warp_drive() {
                     .tips_completed
                     .as_ref(ctx)
                     .features_used
-                    .contains(&Tip::Action(TipAction::OpenWarpDrive)),
+                    .contains(&Tip::Action(TipAction::ZapDrive)),
                 "Warp drive welcome tip should not be completed"
             );
 
@@ -1338,7 +1338,7 @@ fn test_open_or_toggle_warp_drive() {
                     .tips_completed
                     .as_ref(ctx)
                     .features_used
-                    .contains(&Tip::Action(TipAction::OpenWarpDrive)),
+                    .contains(&Tip::Action(TipAction::ZapDrive)),
                 "Warp drive welcome tip should not be completed"
             );
 
@@ -1357,7 +1357,7 @@ fn test_open_or_toggle_warp_drive() {
                     .tips_completed
                     .as_ref(ctx)
                     .features_used
-                    .contains(&Tip::Action(TipAction::OpenWarpDrive)),
+                    .contains(&Tip::Action(TipAction::ZapDrive)),
                 "Warp drive welcome tip should not be completed"
             );
         });

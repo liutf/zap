@@ -11,7 +11,7 @@ use crate::cloud_object::model::persistence::ObjectStoreModel;
 use crate::cloud_object::{GenericStringObjectFormat, JsonObjectType, ObjectType};
 use crate::drive::export::ExportManager;
 use crate::drive::items::WarpDriveItemId;
-use crate::drive::{ObjectTypeAndId, OpenWarpDriveObjectArgs, OpenWarpDriveObjectSettings};
+use crate::drive::{ObjectTypeAndId, ZapDriveObjectArgs, ZapDriveObjectSettings};
 use crate::experiments::{BlockOnboarding, Experiment};
 use crate::interval_timer::IntervalTimer;
 use crate::launch_configs::launch_config;
@@ -102,10 +102,10 @@ use crate::auth::{WebHandoffEvent, WebHandoffView};
 
 /// 返回当前 channel 的产品名,作为窗口标题初始值与 quake/transferred 窗口标题。
 ///
-/// 取 `ChannelState::app_id().application_name()` 是为了让 OSS 构建显示 `OpenWarp`、
+/// 取 `ChannelState::app_id().application_name()` 是为了让 OSS 构建显示 `Zap`、
 /// 而 Stable/Preview/Dev 等上游 channel 仍显示各自的 `Warp` / `WarpPreview` / `WarpDev`,
 /// 避免在 fork 中跨多处硬编码字符串(Windows 任务管理器按窗口标题做进程分组,
-/// 硬编码 `"Warp"` 会让 OpenWarp 在任务管理器里显示成 `Warp(N)`)。
+/// 硬编码 `"Warp"` 会让 Zap 在任务管理器里显示成 `Warp(N)`)。
 ///
 /// 注意:窗口创建后,`Workspace::update_window_title()` 会在每次 tab 切换/重命名时
 /// 用 tab 标题覆盖此值,所以此函数仅决定窗口刚打开、还未挂上 tab 时的初始标题。
@@ -862,7 +862,7 @@ fn open_linear_issue_work_in_new_window(args: &LinearIssueWork, ctx: &mut AppCon
     });
 }
 
-fn open_warp_drive_object(arg: &OpenWarpDriveObjectArgs, ctx: &mut AppContext) {
+fn open_warp_drive_object(arg: &ZapDriveObjectArgs, ctx: &mut AppContext) {
     match arg.object_type {
         ObjectType::Notebook => open_new_workspace_with_notebook_open(
             SyncId::ServerId(arg.server_id),
@@ -888,7 +888,7 @@ fn display_object_missing_error_in_window(window_id: WindowId, ctx: &mut AppCont
 
 fn open_new_workspace_with_notebook_open(
     notebook_id: SyncId,
-    settings: OpenWarpDriveObjectSettings,
+    settings: ZapDriveObjectSettings,
     ctx: &mut AppContext,
 ) {
     open_new_with_workspace_source(
@@ -902,7 +902,7 @@ fn open_new_workspace_with_notebook_open(
 
 fn open_new_workspace_with_workflow_open(
     workflow_id: SyncId,
-    settings: OpenWarpDriveObjectSettings,
+    settings: ZapDriveObjectSettings,
     ctx: &mut AppContext,
 ) {
     open_new_with_workspace_source(
@@ -1310,11 +1310,11 @@ pub enum NewWorkspaceSource {
     },
     NotebookById {
         id: SyncId,
-        settings: OpenWarpDriveObjectSettings,
+        settings: ZapDriveObjectSettings,
     },
     WorkflowById {
         id: SyncId,
-        settings: OpenWarpDriveObjectSettings,
+        settings: ZapDriveObjectSettings,
     },
     AgentSession {
         options: Box<NewTerminalOptions>,
@@ -1447,7 +1447,7 @@ impl RootView {
             me.handle_auth_manager_event(event, ctx);
         });
 
-        // OpenWarp(本地化,Phase 5):`PreferencesSyncer` 已物理删除。
+        // Zap(本地化,Phase 5):`PreferencesSyncer` 已物理删除。
         // 原 `InitialLoadCompleted` 事件用于在云端 preferences 同步完成后调用
         // `apply_onboarding_settings`,本地化场景下 onboarding 设置直接本地应用。
 
@@ -1478,11 +1478,11 @@ impl RootView {
                 if #[cfg(target_family = "wasm")] {
                     AuthOnboardingState::WebImport(AuthOnboardingTarget::Workspace(workspace_args.into()))
                 } else {
-                    // When OpenWarpNewSettingsModes is enabled, show onboarding before login for
+                    // When ZapNewSettingsModes is enabled, show onboarding before login for
                     // users who haven't completed it yet (tracked via a local UserPreferences key).
-                    let has_completed_local_onboarding = FeatureFlag::OpenWarpNewSettingsModes.is_enabled()
+                    let has_completed_local_onboarding = FeatureFlag::ZapNewSettingsModes.is_enabled()
                         && has_completed_local_onboarding(ctx);
-                    let should_show_pre_login_onboarding = FeatureFlag::OpenWarpNewSettingsModes.is_enabled()
+                    let should_show_pre_login_onboarding = FeatureFlag::ZapNewSettingsModes.is_enabled()
                         && FeatureFlag::AgentOnboarding.is_enabled()
                         && !has_completed_local_onboarding;
                     if FeatureFlag::ForceLogin.is_enabled() {
@@ -1954,7 +1954,7 @@ impl RootView {
 
     pub fn open_warp_drive_object_in_existing_window(
         &mut self,
-        arg: &OpenWarpDriveObjectArgs,
+        arg: &ZapDriveObjectArgs,
         ctx: &mut ViewContext<Self>,
     ) -> bool {
         if let AuthOnboardingState::Terminal(handle) = &self.auth_onboarding_state {
@@ -2269,8 +2269,8 @@ impl RootView {
                             // application, which ought to be valid.
                             self.web_handoff(ctx);
                         } else {
-                            // OpenWarp 已移除 log_out UI 入口,native 不再强制登出。
-                            log::warn!("User account disabled; ignoring (OpenWarp 已移除 log_out)");
+                            // Zap 已移除 log_out UI 入口,native 不再强制登出。
+                            log::warn!("User account disabled; ignoring (Zap 已移除 log_out)");
                         }
                     }
                 }
@@ -2301,7 +2301,7 @@ impl RootView {
     ) {
         match event {
             AuthOverrideWarningModalEvent::Close => {
-                // OpenWarp 已移除 log_out 入口,关闭时不再触发登出。
+                // Zap 已移除 log_out 入口,关闭时不再触发登出。
             }
             AuthOverrideWarningModalEvent::BulkExport => {
                 self.export_all_warp_drive_objects(ctx);
@@ -2422,7 +2422,7 @@ impl RootView {
         true
     }
 
-    /// OpenWarp(本地化,Phase 5):原 `handle_preferences_syncer_event` 在云端
+    /// Zap(本地化,Phase 5):原 `handle_preferences_syncer_event` 在云端
     /// preferences 同步初始加载完成后应用 onboarding settings,随同步器物理删除。
     /// onboarding settings 现在在 onboarding 完成时直接应用,不需要延迟到 cloud sync 后。
     /// If onboarding stored a pending tutorial (because login was required first),
@@ -2436,7 +2436,7 @@ impl RootView {
             return;
         };
 
-        if FeatureFlag::OpenWarpNewSettingsModes.is_enabled()
+        if FeatureFlag::ZapNewSettingsModes.is_enabled()
             && FeatureFlag::TabConfigs.is_enabled()
         {
             let intention = tutorial.intention();

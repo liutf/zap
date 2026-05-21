@@ -141,75 +141,7 @@ fn main() -> Result<()> {
         copy_async_assets();
     }
 
-    generate_channel_config_if_needed(&target_family, &target_os);
-
     Ok(())
-}
-
-/// If `warp-channel-config` is available on PATH and the `release_bundle` feature is enabled,
-/// invoke the config generator binary and write the JSON output to `OUT_DIR` so it can be
-/// embedded via `include_str!` in the binary entry points.
-fn generate_channel_config_if_needed(target_family: &str, target_os: &str) {
-    if env::var("CARGO_FEATURE_RELEASE_BUNDLE").is_err() {
-        // For non-bundled builds, config is loaded at runtime — nothing to embed.
-        return;
-    }
-
-    let config_bin = "warp-channel-config";
-
-    // Check if the config binary is available on PATH. If not, we can't generate embedded
-    // configs. This is expected for external contributors building Warp OSS.
-    if Command::new(config_bin)
-        .arg("--help")
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .status()
-        .is_err()
-    {
-        return;
-    }
-
-    // Only track these for bundled builds, where they affect the embedded config.
-    // For non-bundled builds these are runtime variables and should not trigger recompilation.
-    println!("cargo:rerun-if-env-changed=WITH_LOCAL_SERVER");
-    println!("cargo:rerun-if-env-changed=WITH_LOCAL_SESSION_SHARING_SERVER");
-    println!("cargo:rerun-if-env-changed=WITH_SANDBOX_TELEMETRY");
-    println!("cargo:rerun-if-env-changed=SERVER_ROOT_URL");
-    println!("cargo:rerun-if-env-changed=WS_SERVER_URL");
-
-    let out_dir = env::var("OUT_DIR").expect("OUT_DIR must be set");
-    let family_arg = if target_family == "wasm" {
-        "wasm"
-    } else {
-        "native"
-    };
-
-    // Generate config for all internal channels. The build script runs once per crate (not
-    // once per binary), so we generate all configs here and each binary's include_str! picks
-    // up its own file.
-    for channel in ["local", "dev", "stable", "preview"] {
-        let output = Command::new(config_bin)
-            .arg("--channel")
-            .arg(channel)
-            .arg("--target-family")
-            .arg(family_arg)
-            .arg("--target-os")
-            .arg(target_os)
-            .output()
-            .unwrap_or_else(|err| {
-                panic!("Failed to execute config generator at '{config_bin}': {err}")
-            });
-
-        if !output.status.success() {
-            let stderr = String::from_utf8_lossy(&output.stderr);
-            panic!("Config generator failed for channel '{channel}':\n{stderr}");
-        }
-
-        let config_path = Path::new(&out_dir).join(format!("{channel}_config.json"));
-        fs::write(&config_path, &output.stdout).unwrap_or_else(|err| {
-            panic!("Failed to write config to {}: {err}", config_path.display())
-        });
-    }
 }
 
 fn get_build_profile_name() -> String {
@@ -357,19 +289,19 @@ fn embed_resource_file(target_dir: &Path) {
     use std::io::Write;
 
     let version = env::var("GIT_RELEASE_TAG").unwrap_or("v0".to_owned());
-    // 默认值与 publisher 一致定为「OpenWarp」,与 `script/windows/bundle.ps1` OSS 分支
-    // (`$APP_NAME = 'OpenWarp'`) + AUMID `dev.openwarp.OpenWarp` + Cargo bundle
+    // 默认值与 publisher 一致定为「Zap」,与 `script/windows/bundle.ps1` OSS 分支
+    // (`$APP_NAME = 'Zap'`) + AUMID `dev.zap.Zap` + Cargo bundle
     // metadata 全局对齐。Windows 任务管理器的进程分组名实际取自 PE 资源中的
     // `FileDescription` / `ProductName`(不是窗口标题),所以这里若回退默认 "Warp",
     // 直接 `cargo build` 出来的 dev 二进制在任务管理器里会显示成 `Warp(N)`。
     // 上游官方流水线在调用前会显式 `export WARP_APP_NAME=...` 覆盖,不受影响。
-    let app_name = env::var("WARP_APP_NAME").unwrap_or_else(|_| "OpenWarp".to_owned());
+    let app_name = env::var("WARP_APP_NAME").unwrap_or_else(|_| "Zap".to_owned());
     let bin_name = env::var("CARGO_BIN_NAME").unwrap_or("local".to_owned());
-    // 以 `WARP_APP_PUBLISHER` 覆盖;默认与 installer / AUMID 一致为「OpenWarp」。
+    // 以 `WARP_APP_PUBLISHER` 覆盖;默认与 installer / AUMID 一致为「Zap」。
     // 保持 installer `MyAppPublisher`、Cargo bundle metadata `copyright`、
-    // 进程 AUMID `dev.openwarp.OpenWarp` 三处全局对齐，避免 Windows Shell
+    // 进程 AUMID `dev.zap.Zap` 三处全局对齐，避免 Windows Shell
     // 因 publisher / product name fingerprint 不一致而 miss 掉 icon cache。
-    let publisher = env::var("WARP_APP_PUBLISHER").unwrap_or_else(|_| "OpenWarp".to_owned());
+    let publisher = env::var("WARP_APP_PUBLISHER").unwrap_or_else(|_| "Zap".to_owned());
     let (ver_major, ver_minor, ver_patch, ver_build) = parse_file_version_quad(&version);
 
     let icon_path = Path::new("channels")

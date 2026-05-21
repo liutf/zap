@@ -113,14 +113,14 @@ impl SearchItem for WarpAISearchItem {
     fn accept_result(&self) -> CommandSearchItemAction {
         match self {
             WarpAISearchItem::Translate => CommandSearchItemAction::TranslateUsingWarpAI,
-            WarpAISearchItem::Open => CommandSearchItemAction::OpenWarpAI,
+            WarpAISearchItem::Open => CommandSearchItemAction::ZapAI,
         }
     }
 
     fn execute_result(&self) -> CommandSearchItemAction {
         match self {
             WarpAISearchItem::Translate => CommandSearchItemAction::TranslateUsingWarpAI,
-            WarpAISearchItem::Open => CommandSearchItemAction::OpenWarpAI,
+            WarpAISearchItem::Open => CommandSearchItemAction::ZapAI,
         }
     }
 
@@ -129,7 +129,7 @@ impl SearchItem for WarpAISearchItem {
     }
 }
 
-/// OpenWarp 只保留同步入口:打开 BYOP Agent 或把自然语言写回输入框。
+/// Zap 只保留同步入口:打开 BYOP Agent 或把自然语言写回输入框。
 /// 云端“自然语言生成命令”异步源已删除。
 pub struct WarpAIDataSource;
 

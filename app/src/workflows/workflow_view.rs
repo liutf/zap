@@ -40,7 +40,7 @@ use crate::{
             workflow_arg_selector::{WorkflowArgSelector, WorkflowArgSelectorEvent},
             workflow_arg_type_helpers::{self, ArgumentEditorRowIndex},
         },
-        DriveObjectType, ObjectTypeAndId, OpenWarpDriveObjectSettings,
+        DriveObjectType, ObjectTypeAndId, ZapDriveObjectSettings,
     },
     editor::{
         EditorOptions, EditorView, EnterAction, EnterSettings, Event as EditorEvent,
@@ -576,7 +576,7 @@ impl WorkflowView {
                 {
                     self.load(
                         workflow.clone(),
-                        &OpenWarpDriveObjectSettings::default(),
+                        &ZapDriveObjectSettings::default(),
                         self.workflow_view_mode,
                         ctx,
                     );
@@ -596,7 +596,7 @@ impl WorkflowView {
                 {
                     self.load(
                         workflow,
-                        &OpenWarpDriveObjectSettings::default(),
+                        &ZapDriveObjectSettings::default(),
                         self.workflow_view_mode,
                         ctx,
                     );
@@ -614,7 +614,7 @@ impl WorkflowView {
         if let Some(workflow) = workflow {
             self.load(
                 workflow,
-                &OpenWarpDriveObjectSettings::default(),
+                &ZapDriveObjectSettings::default(),
                 self.workflow_view_mode,
                 ctx,
             );
@@ -624,7 +624,7 @@ impl WorkflowView {
     pub fn wait_for_initial_load_then_load(
         &mut self,
         workflow_id: SyncId,
-        settings: &OpenWarpDriveObjectSettings,
+        settings: &ZapDriveObjectSettings,
         mode: WorkflowViewMode,
         window_id: WindowId,
         ctx: &mut ViewContext<Self>,
@@ -673,7 +673,7 @@ impl WorkflowView {
     fn fetch_and_load_workflow(
         &mut self,
         workflow_id: ServerId,
-        settings: &OpenWarpDriveObjectSettings,
+        settings: &ZapDriveObjectSettings,
         mode: WorkflowViewMode,
         window_id: WindowId,
         ctx: &mut ViewContext<Self>,
@@ -711,7 +711,7 @@ impl WorkflowView {
     pub fn load(
         &mut self,
         workflow: WorkflowObject,
-        settings: &OpenWarpDriveObjectSettings,
+        settings: &ZapDriveObjectSettings,
         mode: WorkflowViewMode,
         ctx: &mut ViewContext<Self>,
     ) {
@@ -755,7 +755,7 @@ impl WorkflowView {
         if let ContainerConfiguration::Pane(pane_config) = &mut self.container_configuration {
             pane_config.update(ctx, |pane_config, ctx| {
                 pane_config.set_title(workflow_name, ctx);
-                // TODO(openwarp-cloud-removal Phase 5): sharing UI 已退役,
+                // TODO(zap-cloud-removal Phase 5): sharing UI 已退役,
                 // workflow ShareableObject 注入移除;workflow.id 仍为 cloud_object id,
                 // Phase 5 退役 cloud_object 时一并清。
                 let _ = workflow.id;
@@ -848,7 +848,7 @@ impl WorkflowView {
             );
         }
 
-        // TODO(openwarp-cloud-removal Phase 5): workflow invitee_email 同样无 UI
+        // TODO(zap-cloud-removal Phase 5): workflow invitee_email 同样无 UI
         // 出口,但 settings 由上层传入,彻底退役时清字段。
         let _ = settings;
 

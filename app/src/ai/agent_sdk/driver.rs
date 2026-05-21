@@ -277,7 +277,7 @@ pub enum AgentDriverError {
     MCPMissingVariables,
     #[error("Agent profile \"{0}\" not found")]
     ProfileError(String),
-    #[error("Local user state is unavailable. Restart OpenWarp and try again.")]
+    #[error("Local user state is unavailable. Restart Zap and try again.")]
     NotLoggedIn,
     #[error("Saved prompt not found for id {0}")]
     AIWorkflowNotFound(String),
@@ -351,7 +351,7 @@ impl AgentDriver {
             )
         );
 
-        // OpenWarp 启动时会初始化本地用户;走到这里说明本地 auth singleton 未正确初始化。
+        // Zap 启动时会初始化本地用户;走到这里说明本地 auth singleton 未正确初始化。
         if !AuthStateProvider::as_ref(ctx).get().is_logged_in() {
             return Err(AgentDriverError::NotLoggedIn);
         }

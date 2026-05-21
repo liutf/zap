@@ -103,7 +103,7 @@ impl Requests {
             request_limit_info,
         };
 
-        // OpenWarp:无 Warp Inc 云后端,初始 request_limit_info 不再向服务端拉取;
+        // Zap:无 Warp Inc 云后端,初始 request_limit_info 不再向服务端拉取;
         // 使用上面 cached / default 的值即可。
         let _ = cached_request_limit_info;
         requests
@@ -142,7 +142,7 @@ impl Requests {
             TranscriptPartSubType::Question,
             raw_request,
         );
-        let response = "Warp AI Assistant cloud requests are disabled in OpenWarp. Use Agent Mode with a configured BYOP model instead.".to_owned();
+        let response = "Warp AI Assistant cloud requests are disabled in Zap. Use Agent Mode with a configured BYOP model instead.".to_owned();
         let response_in_markdown = markdown_segments_from_text(
             transcript_part_index,
             TranscriptPartSubType::Answer,

@@ -9,9 +9,9 @@ use windows_result::HRESULT;
 
 pub struct RegistryBackedPreferences {
     app_key_path: String,
-    /// 缓存 `HKCU\Software\OpenWarp\<channel>` 注册表 Key 句柄。
+    /// 缓存 `HKCU\Software\Zap\<channel>` 注册表 Key 句柄。
     ///
-    /// OpenWarp 启动时会顺序调用 ~100 个 setting 的 `read_value`,
+    /// Zap 启动时会顺序调用 ~100 个 setting 的 `read_value`,
     /// 每次都走 `CURRENT_USER.create(...)` 打开/创建 Key 是 ~3ms 的同步系统调用,
     /// 累计 300ms+(占冷启动 `READ_USER_DEFAULTS_AND_INITIALIZE_SETTINGS` 阶段大头)。
     /// 这里把第一次成功打开的 Key 缓存下来,后续读直接复用,省掉 N-1 次系统调用。
@@ -22,7 +22,7 @@ pub struct RegistryBackedPreferences {
     cached_key: Mutex<Option<Key>>,
 }
 
-static WARP_REGISTRY_BASE_PATH: &str = "Software\\OpenWarp\\";
+static WARP_REGISTRY_BASE_PATH: &str = "Software\\Zap\\";
 pub const KEY_NOT_FOUND_ERR: HRESULT = HRESULT::from_win32(0x80070002);
 
 impl RegistryBackedPreferences {

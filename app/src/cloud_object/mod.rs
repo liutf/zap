@@ -1,10 +1,10 @@
-//! # OpenWarp 本地化说明(Phase 2d-4b,2026-05-11 修订)
+//! # Zap 本地化说明(Phase 2d-4b,2026-05-11 修订)
 //!
 //! 本模块在上游 Warp 中承担 "云对象" 抽象,统一描述 Notebook / Workflow / EnvVar /
 //! Fact / MCP / ExecutionProfile / AIDocument 等需要在多设备间同步的对象类型。
 //!
-//! 在 OpenWarp 中云端同步链路(RTC / UpdateManager / SyncQueue / ServerApiProvider)
-//! 已被剥离(详见 `docs/openwarp-cloud-removal-plan.md`),本模块**变为纯本地对象抽象**:
+//! 在 Zap 中云端同步链路(RTC / UpdateManager / SyncQueue / ServerApiProvider)
+//! 已被剥离(详见 `docs/zap-cloud-removal-plan.md`),本模块**变为纯本地对象抽象**:
 //!
 //! - `StoredObject` trait → 实际语义是 "本地领域对象 trait",承载 metadata / permissions /
 //!   versions / display_name / upsert_event / as_any / clone_box;命名上的 `Cloud` 前缀
@@ -28,7 +28,7 @@ use crate::{
     auth::UserUid,
     channel::ChannelState,
     drive::{
-        items::WarpDriveItem, ObjectTypeAndId, OpenWarpDriveObjectArgs, OpenWarpDriveObjectSettings,
+        items::WarpDriveItem, ObjectTypeAndId, ZapDriveObjectArgs, ZapDriveObjectSettings,
     },
     persistence::ModelEvent,
     server::ids::{ClientId, HashableId, HashedSqliteId, ObjectUid, ServerId, SyncId, ToServerId},
@@ -62,7 +62,7 @@ pub use server_types::*;
 
 /// 包装一个 model 序列化后字符串的 newtype。
 ///
-/// OpenWarp(Wave 4):原定义在 `crate::server::sync_queue`,SyncQueue 整删后
+/// Zap(Wave 4):原定义在 `crate::server::sync_queue`,SyncQueue 整删后
 /// 迁到这里。多个 model 的 `serialized()` 仍然返回它(本地写 sqlite 时使用)。
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SerializedModel(String);
@@ -826,7 +826,7 @@ where
 /// can be opened natively in Warp with no web interaction.
 pub fn extract_server_id_and_object_type_from_warp_drive_link(
     url: &Url,
-) -> Option<OpenWarpDriveObjectArgs> {
+) -> Option<ZapDriveObjectArgs> {
     let server_id = url
         .path_segments()
         .and_then(|mut segments| segments.next_back())
@@ -849,13 +849,13 @@ pub fn extract_server_id_and_object_type_from_warp_drive_link(
 
     let invitee_email: Option<String> = query_string.get("invitee_email").map(|s| s.to_string());
 
-    Some(OpenWarpDriveObjectArgs {
+    Some(ZapDriveObjectArgs {
         object_type,
         server_id: match server_id {
             Some(server_id) => server_id.try_into().ok()?,
             _ => return None,
         },
-        settings: OpenWarpDriveObjectSettings {
+        settings: ZapDriveObjectSettings {
             focused_folder_id,
             invitee_email,
         },

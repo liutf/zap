@@ -295,7 +295,7 @@ pub struct InlineFile {
 }
 
 /// 默认 zip 文件名(用于"导出到日志目录"流程,以及作为 save-file picker
-/// 的默认文件名)。形如 `openwarp-20260518-093000.zip`。
+/// 的默认文件名)。形如 `zap-20260518-093000.zip`。
 pub fn default_log_bundle_filename() -> String {
     let logfile_name = ChannelState::logfile_name();
     let logfile_stem = logfile_name.strip_suffix(".log").unwrap_or(&logfile_name);

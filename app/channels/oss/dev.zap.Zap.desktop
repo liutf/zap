@@ -4,20 +4,20 @@ Version=1.0
 
 Type=Application
 
-Name=WarpLocal
+Name=Zap
 GenericName=TerminalEmulator
 
-Exec=warp-terminal-local %U
-StartupWMClass=dev.warp.WarpLocal
+Exec=zap-terminal %U
+StartupWMClass=dev.zap.Zap
 
 Keywords=shell;prompt;command;commandline;cmd;
 
-Icon=dev.warp.WarpLocal
+Icon=dev.zap.Zap
 
 Categories=System;TerminalEmulator;
 
 # Don't run this application within a terminal.
 Terminal=false
 
-# Register ourselves as the handler for warplocal:// URLs.
-MimeType=x-scheme-handler/warplocal;
+# Register ourselves as the handler for zap:// URLs.
+MimeType=x-scheme-handler/zap;

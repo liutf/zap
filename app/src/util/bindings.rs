@@ -86,7 +86,7 @@ pub enum CustomAction {
     CopyBlock,
     CopyBlockCommand,
     CopyBlockOutput,
-    // OpenWarp Wave 6-8:`ViewSharedBlocks` 随 `ShowBlocksView` 设置页与
+    // Zap Wave 6-8:`ViewSharedBlocks` 随 `ShowBlocksView` 设置页与
     // `workspace:show_settings_shared_blocks_page` keybinding 一同物理删。
     CloseTab,
     CloseOtherTabs,

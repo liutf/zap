@@ -61,7 +61,7 @@ pub enum CommandSearchItemAction {
     RunAIQuery(String),
 
     /// The user accepted the search item to open Warp AI.
-    OpenWarpAI,
+    ZapAI,
 
     /// The user accepted the search item to translate the query to a command using Warp AI.
     TranslateUsingWarpAI,
