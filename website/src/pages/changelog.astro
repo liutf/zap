@@ -1,8 +1,9 @@
 ---
 import LandingLayout from '../layouts/LandingLayout.astro';
-// CHANGELOG.md 在仓库根,通过 Vite ?raw import 静态内联(构建时由 Vite 解析,
-// 比 fs.readFileSync 更可靠 — 不依赖 process.cwd()。)
-import changelogRaw from '../../../CHANGELOG.md?raw';
+// CHANGELOG.md 在 website 目录根(由 prebuild/predev 脚本从仓库根同步而来),
+// 通过 Vite ?raw import 静态内联。放在 website 内部是为了让 Dokploy/nixpacks
+// 这类只把 website/ 作为构建上下文的部署环境也能找到文件。
+import changelogRaw from '../../CHANGELOG.md?raw';
 
 type BulletNode = {
   text: string;       // 已经渲染好的 HTML(粗体、code、链接)
